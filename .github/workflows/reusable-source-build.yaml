@@ -21,7 +21,7 @@ on:
         type: string
       vcs_repo_file_url:
         description: "URL to the vcs repositories file (optional)"
-        required: false
+        required: true
         type: string
       skip_tests:
         description: "Skip running tests"
