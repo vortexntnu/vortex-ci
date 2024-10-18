@@ -1,0 +1,23 @@
+# To use:
+#
+#     pre-commit run -a
+#
+# Or:
+#
+#     pre-commit install  # (runs every time you commit in git)
+#
+# To update this file:
+#
+#     pre-commit autoupdate
+#
+# See https://github.com/pre-commit/pre-commit
+
+repos:
+  - repo: local
+    hooks:
+      - id: yamlfmt
+        name: yamlfmt (Google YAML Formatter)
+        entry: yamlfmt
+        language: system
+        types: [yaml]
+        files: \.(yml|yaml)$
