@@ -20,7 +20,7 @@ on:
         default: ${{ github.event.repository.default_branch }}
         type: string
       vcs_repo_file_url:
-        description: "URL to the vcs repositories file (optional)"
+        description: "URL to the vcs repositories file"
         required: true
         type: string
       skip_tests:
