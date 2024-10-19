@@ -1,4 +1,6 @@
-name: Update pre-commit hooks
+name: Reusable update pre-commit hooks
+# Reusable GitHub Actions workflow to update pre-commit hooks and create a pull request if changes are detected
+
 on:
   workflow_call:
     inputs:
@@ -11,8 +13,8 @@ on:
         description: "Python version to use"
         required: true
         type: string
-      assignee:
-        description: "Assignee of the pull request"
+      responsible:
+        description: "Person responsible for reviewing the pull request"
         required: true
         type: string
 jobs:
@@ -55,5 +57,5 @@ jobs:
           body: Update versions of pre-commit hooks to latest version. Please review and merge.
           draft: true
           delete-branch: true
-          assignees: ${{ inputs.assignee }}
-          reviewers: ${{ inputs.assignee }}
+          assignees: ${{ inputs.responsible }}
+          reviewers: ${{ inputs.responsible }}
