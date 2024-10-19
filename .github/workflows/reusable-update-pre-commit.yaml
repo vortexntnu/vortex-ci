@@ -7,6 +7,10 @@ on:
         default: ${{ github.event.repository.default_branch }}
         required: false
         type: string
+      python_version:
+        description: "Python version to use"
+        required: true
+        type: string
 jobs:
   update_pre_commit_and_create_pr:
     runs-on: ubuntu-latest
@@ -18,19 +22,15 @@ jobs:
         with:
           fetch-depth: 0
           path: ${{ env.path }}
-          ref: ${{ github.event.inputs.ref }}
+          ref: ${{ inputs.ref }}
       - name: Set up Python and pre-commit
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python_version }}
+      - name: Pre-commit autoupdate
         run: |
-          sudo apt-get update
-          sudo apt-get install -qq python3-venv
-          python3 -m venv .venv
-          source .venv/bin/activate
-          python3 -m pip install --upgrade pip
-          pip install pre-commit
-      - name: Auto-update pre-commit hooks
-        run: |
-          source .venv/bin/activate
           cd ${{ env.path }}
+          pip install pre-commit
           pre-commit autoupdate
       - name: Check for changes
         id: git_status
@@ -50,12 +50,10 @@ jobs:
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          branch: 'auto-update-pre-commit-hooks'
-          commit-message: "chore: bump version of pre-commit hooks"
-          title: "Bump version of pre-commit hooks"
-          body: |
-            This pull request updates the versions of pre-commit hooks.
-            Please review and run the pre-commit workflow on the branch `auto-update-pre-commit-hooks` before merging.
+          branch: 'update/pre-commit-hooks'
+          commit-message: "chore: update pre-commit hooks"
+          title: "Update pre-commit hooks"
+          body: Update versions of pre-commit hooks to latest version.
           draft: true
           delete-branch: true
           path: ${{ env.path }}
