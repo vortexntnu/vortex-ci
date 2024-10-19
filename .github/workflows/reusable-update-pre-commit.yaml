@@ -4,6 +4,11 @@ name: Reusable update pre-commit hooks
 on:
   workflow_call:
     inputs:
+      os_name:
+        description: "Operating System to run the workflow on"
+        required: false
+        default: "ubuntu-22.04"
+        type: string
       ref:
         description: "Git branch or tag to checkout"
         default: ${{ github.event.repository.default_branch }}
@@ -19,7 +24,7 @@ on:
         type: string
 jobs:
   update_pre_commit_and_create_pr:
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.os_name }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
