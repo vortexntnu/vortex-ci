@@ -13,6 +13,12 @@
 # See https://github.com/pre-commit/pre-commit
 
 repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
   - repo: local
     hooks:
       - id: yamlfmt
@@ -21,9 +27,3 @@ repos:
         language: system
         types: [yaml]
         files: \.(yml|yaml)$
-  # Spell Checking
-  - repo: https://github.com/codespell-project/codespell
-    rev: v2.0.0
-    hooks:
-      - id: codespell
-        args: ['--write-changes']
