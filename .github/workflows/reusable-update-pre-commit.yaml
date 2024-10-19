@@ -11,6 +11,10 @@ on:
         description: "Python version to use"
         required: true
         type: string
+      assignee:
+        description: "Assignee of the pull request"
+        required: true
+        type: string
 jobs:
   update_pre_commit_and_create_pr:
     runs-on: ubuntu-latest
@@ -48,6 +52,7 @@ jobs:
           branch: 'update/pre-commit-hooks'
           commit-message: "chore: update pre-commit hooks"
           title: "Update pre-commit hooks"
-          body: Update versions of pre-commit hooks to latest version.
+          body: Update versions of pre-commit hooks to latest version. Please review and merge.
           draft: true
           delete-branch: true
+          assignees: ${{ inputs.assignee }}
