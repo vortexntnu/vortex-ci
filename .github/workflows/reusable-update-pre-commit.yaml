@@ -50,12 +50,12 @@ jobs:
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          branch: 'auto-update-${{ github.event.inputs.ref }}'
+          branch: 'auto-update-pre-commit-hooks'
           commit-message: "chore: bump version of pre-commit hooks"
-          title: "chore: Bump version of pre-commit hooks"
+          title: "Bump version of pre-commit hooks"
           body: |
             This pull request updates the versions of pre-commit hooks.
-            Please review and run the pre-commit workflow on the branch `auto-update-${{ github.event.inputs.ref }}` before merging.
+            Please review and run the pre-commit workflow on the branch `auto-update-pre-commit-hooks` before merging.
           draft: true
           delete-branch: true
           path: ${{ env.path }}
