@@ -50,6 +50,6 @@ jobs:
           title: "chore: Bump version of pre-commit hooks"
           body: |
             This pull request updates the versions of pre-commit hooks.
-            Please review and run the pre-commit workflow on the branch `auto-update-${{ github.event.inputs.ref }}` before merging.
+            Please review and run the pre-commit workflow on the branch `auto-update-${{ github.event.inputs.ref_for_scheduled_build }}` before merging.
           draft: true
           delete-branch: true
