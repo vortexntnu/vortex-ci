@@ -5,3 +5,4 @@ jobs:
     uses: vortexntnu/vortex-ci/.github/workflows/reusable-update-pre-commit.yaml@feature/add-pre-commit-update-workflow
     with:
       ref: ${{ github.ref }}
+      python_version: '3.10'
