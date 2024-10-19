@@ -4,8 +4,8 @@ on:
     inputs:
       ref:
         description: "Git branch or tag to checkout"
-        required: false
         default: ${{ github.event.repository.default_branch }}
+        required: false
         type: string
 jobs:
   update_pre_commit_and_create_pr:
@@ -45,17 +45,25 @@ jobs:
         if: steps.git_status.outputs.changed == 'false'
         run: |
           echo "No changes detected"
+      - name: Extract branch name
+        if: steps.git_status.outputs.changed == 'true'
+        id: extract_branch
+        run: |
+          # Remove 'refs/heads/' prefix if present
+          CLEAN_REF="${{ github.event.inputs.ref }}"
+          CLEAN_REF="${CLEAN_REF#refs/heads/}"
+          echo "branch_name=$CLEAN_REF" >> $GITHUB_OUTPUT
       - name: Create Pull Request
         if: steps.git_status.outputs.changed == 'true'
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          branch: auto-update-${{ github.event.inputs.ref }}
+          branch: auto-update-${{ steps.extract_branch.outputs.branch_name }}
           commit-message: "chore: bump version of pre-commit hooks"
           title: "chore: Bump version of pre-commit hooks"
           body: |
             This pull request updates the versions of pre-commit hooks.
-            Please review and run the pre-commit workflow on the branch `auto-update-${{ github.event.inputs.ref }}` before merging.
+            Please review and run the pre-commit workflow on the branch `auto-update-${{ steps.extract_branch.outputs.branch_name }}` before merging.
           draft: true
           delete-branch: true
           path: ${{ env.path }}
