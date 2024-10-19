@@ -1,0 +1,61 @@
+name: Reusable update pre-commit hooks
+# Reusable GitHub Actions workflow to update pre-commit hooks and create a pull request if changes are detected
+
+on:
+  workflow_call:
+    inputs:
+      ref:
+        description: "Git branch or tag to checkout"
+        default: ${{ github.event.repository.default_branch }}
+        required: false
+        type: string
+      python_version:
+        description: "Python version to use"
+        required: true
+        type: string
+      responsible:
+        description: "Person responsible for reviewing the pull request"
+        required: true
+        type: string
+jobs:
+  update_pre_commit_and_create_pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ inputs.ref }}
+      - name: Set up Python and pre-commit
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python_version }}
+      - name: Pre-commit autoupdate
+        run: |
+          pip install pre-commit
+          pre-commit autoupdate
+      - name: Check for changes
+        id: git_status
+        run: |
+          if git diff --quiet; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+      - name: No changes!
+        if: steps.git_status.outputs.changed == 'false'
+        run: |
+          echo "No changes detected"
+      - name: Create Pull Request
+        if: steps.git_status.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: 'update/pre-commit-hooks'
+          commit-message: "chore: update pre-commit hooks"
+          title: "Update pre-commit hooks"
+          body: Update versions of pre-commit hooks to latest version. Please review and merge.
+          draft: true
+          delete-branch: true
+          assignees: ${{ inputs.responsible }}
+          reviewers: ${{ inputs.responsible }}
