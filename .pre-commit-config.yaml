@@ -25,6 +25,4 @@ repos:
       - id: yamlfmt
         name: YAMLFMT
         description: formats yaml files consistently.
-        language: system
-        entry: yamlfmt
         files: \.(yml|yaml)$
