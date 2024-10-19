@@ -10,11 +10,14 @@ on:
 jobs:
   update_pre_commit_and_create_pr:
     runs-on: ubuntu-latest
+    env:
+      path: src/${{ github.repository }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          path: ${{ env.path }}
           ref: ${{ github.event.inputs.ref }}
       - name: Set up Python and pre-commit
         run: |
@@ -27,10 +30,12 @@ jobs:
       - name: Auto-update pre-commit hooks
         run: |
           source .venv/bin/activate
+          cd ${{ env.path }}
           pre-commit autoupdate
       - name: Check for changes
         id: git_status
         run: |
+          cd ${{ env.path }}
           if git diff --quiet; then
             echo "changed=false" >> $GITHUB_OUTPUT
           else
@@ -53,3 +58,4 @@ jobs:
             Please review and run the pre-commit workflow on the branch `auto-update-${{ github.event.inputs.ref }}` before merging.
           draft: true
           delete-branch: true
+          path: ${{ env.path }}
