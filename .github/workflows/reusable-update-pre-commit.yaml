@@ -1,0 +1,55 @@
+name: Update pre-commit hooks
+on:
+  workflow_call:
+    inputs:
+      ref:
+        description: "Git branch or tag to checkout"
+        required: false
+        default: ${{ github.event.repository.default_branch }}
+        type: string
+jobs:
+  update_pre_commit_and_create_pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.inputs.ref }}
+      - name: Set up Python and pre-commit
+        run: |
+          sudo apt-get update
+          sudo apt-get install -qq python3-venv
+          python3 -m venv .venv
+          source .venv/bin/activate
+          python3 -m pip install --upgrade pip
+          pip install pre-commit
+      - name: Auto-update pre-commit hooks
+        run: |
+          source .venv/bin/activate
+          pre-commit autoupdate
+      - name: Check for changes
+        id: git_status
+        run: |
+          if git diff --quiet; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+      - name: No changes!
+        if: steps.git_status.outputs.changed == 'false'
+        run: |
+          echo "No changes detected"
+      - name: Create Pull Request
+        if: steps.git_status.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: auto-update-${{ github.event.inputs.ref }}
+          commit-message: "chore: bump version of pre-commit hooks"
+          title: "chore: Bump version of pre-commit hooks"
+          body: |
+            This pull request updates the versions of pre-commit hooks.
+            Please review and run the pre-commit workflow on the branch `auto-update-${{ github.event.inputs.ref }}` before merging.
+          draft: true
+          delete-branch: true
