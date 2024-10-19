@@ -56,3 +56,4 @@ jobs:
           draft: true
           delete-branch: true
           assignees: ${{ inputs.assignee }}
+          reviewers: ${{ inputs.assignee }}
