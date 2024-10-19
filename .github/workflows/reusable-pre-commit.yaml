@@ -1,0 +1,35 @@
+name: Reusable pre-commit hooks
+# Reusable GitHub Actions workflow to run pre-commit hooks on a repository
+on:
+  workflow_call:
+    inputs:
+      os_name:
+        description: "Operating System to run the workflow on"
+        required: false
+        default: "ubuntu-22.04"
+        type: string
+      ref:
+        description: "Git branch or tag to checkout"
+        default: ${{ github.event.repository.default_branch }}
+        required: false
+        type: string
+      python_version:
+        description: "Python version to use"
+        required: true
+        type: string
+jobs:
+  pre-commit:
+    runs-on: ${{ inputs.os_name }}
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+      - name: set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ inputs.python_version }}
+      - name: Install pre-commit
+        uses: pre-commit/action@v3.0.1
+        with:
+          extra_args: --all-files
