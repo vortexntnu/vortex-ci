@@ -21,3 +21,9 @@ repos:
         language: system
         types: [yaml]
         files: \.(yml|yaml)$
+  # Spell Checking
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.0.0
+    hooks:
+      - id: codespell
+        args: ['--write-changes']
