@@ -15,7 +15,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: ${{ inputs.ref }}
+          ref: ${{ github.event.inputs.ref }}
       - name: Set up Python and pre-commit
         run: |
           sudo apt-get update
@@ -45,11 +45,11 @@ jobs:
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          branch: auto-update-${{ inputs.ref }}
+          branch: auto-update-${{ github.event.inputs.ref }}
           commit-message: "chore: bump version of pre-commit hooks"
           title: "chore: Bump version of pre-commit hooks"
           body: |
             This pull request updates the versions of pre-commit hooks.
-            Please review and run the pre-commit workflow on the branch `auto-update-${{ inputs.ref }}` before merging.
+            Please review and run the pre-commit workflow on the branch `auto-update-${{ github.event.inputs.ref }}` before merging.
           draft: true
           delete-branch: true
