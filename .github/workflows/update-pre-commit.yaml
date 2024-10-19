@@ -1,0 +1,7 @@
+name: Run Pre-Commit Update Workflow
+on: [push]
+jobs:
+  call_reusable_workflow:
+    uses: vortexntnu/vortex-ci/.github/workflows/reusable-update-pre-commit.yaml@feature/add-pre-commit-update-workflow
+    with:
+      ref: ${{ github.ref }}
