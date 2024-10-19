@@ -19,11 +19,10 @@ repos:
       - id: trailing-whitespace
       - id: end-of-file-fixer
       - id: check-yaml
-  - repo: local
+  - repo: https://github.com/google/yamlfmt
+    rev: v0.13.0
     hooks:
       - id: yamlfmt
-        name: yamlfmt (Google YAML Formatter)
-        entry: yamlfmt
-        language: system
-        types: [yaml]
+        name: YAMLFMT
+        description: formats yaml files consistently.
         files: \.(yml|yaml)$
