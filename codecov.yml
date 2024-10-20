@@ -21,6 +21,7 @@ ignore:
 
 fixes:
   - "::src/"
+  - "vortex_ws/src/*/vortex-auv/::"
 
 flags:
   unittests:
