@@ -1,3 +1,0 @@
-fixes:
-  # For each package in your repo
-  - "./*::"
