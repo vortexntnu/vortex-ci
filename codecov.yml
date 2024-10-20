@@ -1,3 +1,6 @@
+codecov: 
+ token: 225403b5-5d60-4899-ba86-335be869d9c2
+
 coverage:
   precision: 2
   round: down
