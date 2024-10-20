@@ -24,10 +24,6 @@ on:
                 description: "URL to the vcs repositories file"
                 required: true
                 type: string
-            token:
-                description: "Codecov token"
-                required: true
-                type: string
 
 jobs:
     codecov:
@@ -56,7 +52,6 @@ jobs:
               fail_ci_if_error: true
               flags: unittests
               name: codecov-umbrella
-              token: ${{ inputs.token }}
         - uses: actions/upload-artifact@v4.4.3
           with:
             name: colcon-logs-coverage-${{ inputs.ros2_distro }}
