@@ -28,6 +28,11 @@ on:
         required: false
         default: false
         type: boolean
+      gcc_version:
+        description: "GCC version to use (e.g., gcc-11, gcc-10)"
+        required: false
+        default: "gcc-11"
+        type: string
 jobs:
   build:
     runs-on: ${{ inputs.os_name }}
@@ -36,6 +41,16 @@ jobs:
         uses: ros-tooling/setup-ros@v0.7
         with:
           required-ros-distributions: ${{ inputs.ros_distro }}
+      - name: Check and install GCC version
+        run: |
+          if [[ "${{ inputs.gcc_version }}" != "gcc-11" ]]; then
+            sudo apt install -y ${{ inputs.gcc_version }} ${{ inputs.gcc_version }}-g++
+            sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/${{ inputs.gcc_version }} 100
+            sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/${{ inputs.gcc_version }}-g++ 100
+          else
+            echo "GCC 11 is already the default version."
+          gcc --version
+          g++ --version
       - name: build and test ROS 2 packages
         uses: ros-tooling/action-ros-ci@v0.3
         with:
