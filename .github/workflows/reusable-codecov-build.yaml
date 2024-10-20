@@ -1,0 +1,51 @@
+name: 
+on:
+    workflow_call:
+        inputs:
+            os_name:
+                description: "Operating System to run the workflow on"
+                required: false
+                default: "ubuntu-22.04"
+                type: string
+            ros2_distro:
+                description: "ROS 2 distribution to use"
+                required: true
+                type: string
+            ref:
+                description: "Git branch or tag to checkout"
+                default: ${{ github.event.repository.default_branch }}
+                required: false
+                type: string
+            python_version:
+                description: "Python version to use"
+                required: true
+                type: string
+
+jobs:
+    codecov:
+        runs-on: ${{ inputs.os_name }}
+        steps:
+        - uses: actions/checkout@v4
+        - uses: ros-tooling/setup-ros@v0.7
+          with:
+            required-ros-distributions: ${{ inputs.ros2_distro }}
+        - uses: ros-tooling/action-ros-ci@v0.3
+          with:
+            target-ros2-distro: ${{ inputs.ros2_distro }}
+            colcon-defaults: |
+                {
+                "build": {
+                    "mixin": ["coverage-gcc", "coverage-pytest"]
+                },
+                "test": {
+                    "mixin": ["coverage-pytest"]
+                }
+                }
+            # If possible, pin the repository in the workflow to a specific commit to avoid
+            # changes in colcon-mixin-repository from breaking your tests.
+            colcon-mixin-repository: https://raw.githubusercontent.com/colcon/colcon-mixin-repository/b8436aa16c0bdbc01081b12caa253cbf16e0fb82/index.yaml
+        - uses: codecov/codecov-action@v1.2.1
+          with:
+            files: ros_ws/lcov/total_coverage.info,ros_ws/coveragepy/.coverage
+            flags: unittests
+            name: codecov-umbrella
