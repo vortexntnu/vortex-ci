@@ -20,6 +20,10 @@ on:
                 description: "Python version to use"
                 required: true
                 type: string
+            vcs_repo_file_url:
+                description: "URL to the vcs repositories file"
+                required: true
+                type: string
 
 jobs:
     codecov:
@@ -32,6 +36,7 @@ jobs:
         - uses: ros-tooling/action-ros-ci@v0.3
           with:
             target-ros2-distro: ${{ inputs.ros2_distro }}
+            vcs-repo-file-url: ${{ inputs.vcs_repo_file_url }}
             colcon-defaults: |
                 {
                 "build": {
