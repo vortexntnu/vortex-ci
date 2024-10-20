@@ -50,12 +50,14 @@ jobs:
                     "mixin": ["coverage-pytest"]
                 }
                 }
-            # If possible, pin the repository in the workflow to a specific commit to avoid
-            # changes in colcon-mixin-repository from breaking your tests.
-            colcon-mixin-repository: https://raw.githubusercontent.com/colcon/colcon-mixin-repository/b8436aa16c0bdbc01081b12caa253cbf16e0fb82/index.yaml
-        - uses: codecov/codecov-action@v1.2.1
+            colcon-mixin-repository: https://raw.githubusercontent.com/colcon/colcon-mixin-repository/master/index.yaml
+        - uses: codecov/codecov-action@v4
           with:
-            token: ${{ inputs.token }}
-            files: ros_ws/lcov/total_coverage.info,ros_ws/coveragepy/.coverage
-            flags: unittests
-            name: codecov-umbrella
+              fail_ci_if_error: true
+              flags: unittests
+              name: codecov-umbrella
+              token: ${{ inputs.token }}
+        - uses: actions/upload-artifact@v4.4.3
+          with:
+            name: colcon-logs-coverage-${{ inputs.ros2_distro }}
+            path: vortex_ws/log
