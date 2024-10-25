@@ -29,31 +29,36 @@ jobs:
     codecov:
         runs-on: ${{ inputs.os_name }}
         steps:
-        - uses: actions/checkout@v4
-        - uses: ros-tooling/setup-ros@v0.7
-          with:
-            required-ros-distributions: ${{ inputs.ros2_distro }}
-        - uses: ros-tooling/action-ros-ci@v0.3
-          with:
-            target-ros2-distro: ${{ inputs.ros2_distro }}
-            vcs-repo-file-url: ${{ inputs.vcs_repo_file_url }}
-            colcon-defaults: |
-                {
-                "build": {
-                    "mixin": ["coverage-gcc", "coverage-pytest"]
-                },
-                "test": {
-                    "mixin": ["coverage-pytest"]
-                }
-                }
-            colcon-mixin-repository: https://raw.githubusercontent.com/colcon/colcon-mixin-repository/master/index.yaml
-        - uses: codecov/codecov-action@v4
-          with:
-              fail_ci_if_error: true
-              flags: unittests
-              name: codecov-umbrella
-              token: ${{ secrets.CODECOV_TOKEN }}
-        - uses: actions/upload-artifact@v4.4.3
-          with:
-            name: colcon-logs-coverage-${{ inputs.ros2_distro }}
-            path: ${{ steps.action_ros_ci_step.outputs.ros-workspace-directory-name }}/log
+          - name: checkout repository
+            uses: actions/checkout@v4
+          - name: Setup ROS environment
+            uses: ros-tooling/setup-ros@v0.7
+            id: action_ros_ci_step
+            with:
+                required-ros-distributions: ${{ inputs.ros2_distro }}
+          - name: Build and test ROS 2 packages
+            uses: ros-tooling/action-ros-ci@v0.3
+            with:
+                target-ros2-distro: ${{ inputs.ros2_distro }}
+                vcs-repo-file-url: ${{ inputs.vcs_repo_file_url }}
+                colcon-defaults: |
+                    {
+                    "build": {
+                        "mixin": ["coverage-gcc", "coverage-pytest"]
+                    },
+                    "test": {
+                        "mixin": ["coverage-pytest"]
+                    }
+                    }
+                colcon-mixin-repository: https://raw.githubusercontent.com/colcon/colcon-mixin-repository/master/index.yaml
+          - name: codecov-umbrella
+            uses: codecov/codecov-action@v4
+            with:
+                fail_ci_if_error: true
+                flags: unittests
+                token: ${{ secrets.CODECOV_TOKEN }}
+          - name: Upload logs
+            uses: actions/upload-artifact@v4.4.3
+            with:
+                name: colcon-logs
+                path: ${{ steps.action_ros_ci_step.outputs.ros_workspace_directory_name }}/log
