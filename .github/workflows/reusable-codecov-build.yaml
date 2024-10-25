@@ -29,7 +29,7 @@ jobs:
     codecov:
         runs-on: ${{ inputs.os_name }}
         steps:
-          - name: checkout repository
+          - name: Checkout repository
             uses: actions/checkout@v4
           - name: Setup ROS environment
             uses: ros-tooling/setup-ros@v0.7
@@ -51,12 +51,13 @@ jobs:
                     }
                     }
                 colcon-mixin-repository: https://raw.githubusercontent.com/colcon/colcon-mixin-repository/master/index.yaml
-          - name: codecov-umbrella
+          - name: Check code coverage
             uses: codecov/codecov-action@v4
             with:
                 fail_ci_if_error: true
                 flags: unittests
                 token: ${{ secrets.CODECOV_TOKEN }}
+                name: codecov-umbrella
           - name: Upload logs
             uses: actions/upload-artifact@v4.4.3
             with:
