@@ -29,16 +29,16 @@ jobs:
   codecov:
     runs-on: ${{ inputs.os_name }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - id: package_list_action
-        uses: vortexntnu/vortex-ci/.github/actions/set-package-list@feat/codecov
-      
       - name: Setup ROS environment
         uses: ros-tooling/setup-ros@v0.7
         id: action_ros_ci_step
         with:
           required-ros-distributions: ${{ inputs.ros2_distro }}
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - id: package_list_action
+        uses: vortexntnu/vortex-ci/.github/actions/set-package-list@feat/codecov
       
       - name: Build and test ROS 2 packages
         uses: ros-tooling/action-ros-ci@v0.3
