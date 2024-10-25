@@ -69,3 +69,4 @@ jobs:
         with:
           name: colcon-logs
           path: ${{ steps.action_ros_ci_step.outputs.ros_workspace_directory_name }}/log
+        if: always()
