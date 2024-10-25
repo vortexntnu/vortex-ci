@@ -15,9 +15,6 @@ parsers:
       method: no
       macro: no
 
-ignore:
-  - "examples/*"
-
 fixes:
   - "vortex_ws/src/*::src/"
 
@@ -25,6 +22,3 @@ flags:
   unittests:
     paths:
       - "tests/"
-  integration:
-    paths:
-      - "tests/integration/"
