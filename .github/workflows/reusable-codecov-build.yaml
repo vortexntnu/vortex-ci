@@ -59,10 +59,8 @@ jobs:
         with:
           fail_ci_if_error: true
           flags: unittests
-          token: ${{ secrets.CODECOV_TOKEN }}
           name: codecov-umbrella
-          verbose: true
-          files: ros_ws/lcov/total_coverage.info,ros_ws/coveragepy/.coverage
+          token: ${{ secrets.CODECOV_TOKEN }}
       
       - name: Upload logs
         uses: actions/upload-artifact@v4.4.3
