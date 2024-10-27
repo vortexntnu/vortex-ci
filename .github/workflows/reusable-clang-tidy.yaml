@@ -72,8 +72,7 @@ jobs:
         run: |
             sudo apt-get update
             sudo apt-get install -y clang-tidy
-      - uses: ZehMatt/clang-tidy-annotations@v1.0.0
-        with:
-            build_dir: ${{ steps.ros_ci.outputs.ros-workspace-directory-name }}/build
-            source_dir: ${{ env.source_dir }}
-
+      - name: Run clang-tidy
+        run: |
+            cd ${{ steps.ros_ci.outputs.ros-workspace-directory-name }}
+            find "${source_dir}" -name '*.cpp' -o -name '*.hpp' | xargs clang-tidy -p build
