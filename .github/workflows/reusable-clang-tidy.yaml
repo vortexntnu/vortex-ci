@@ -64,6 +64,9 @@ jobs:
                 ]
               }
             }
+      - name: list files
+        run: |
+          ls -la ${{ steps.ros_ci.outputs.ros-workspace-directory-name }}/src/*/${{ github.event.repository.name }}
       - name: run Clang-Tidy review
         uses: ZedThree/clang-tidy-review@v0.19.0
         id: review
