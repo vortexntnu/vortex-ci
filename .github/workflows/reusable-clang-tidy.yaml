@@ -1,0 +1,77 @@
+name: Reusable Clang Tidy
+# Reusable GitHub Actions workflow to build all ROS 2 packages from source and run clang tidy
+on:
+  workflow_call:
+    inputs:
+      ros_distro:
+        description: "ROS Distribution (e.g., humble, jazzy)"
+        required: false
+        default: "humble"
+        type: string
+      os_name:
+        description: "Operating System to run the workflow on"
+        required: false
+        default: "ubuntu-22.04"
+        type: string
+      ref:
+        description: "Git branch or tag to checkout"
+        required: false
+        default: ${{ github.event.repository.default_branch }}
+        type: string
+      vcs_repo_file_url:
+        description: "URL to the vcs repositories file"
+        required: false
+        default: ""
+        type: string
+      skip_tests:
+        description: "Skip running tests"
+        required: false
+        default: false
+        type: boolean
+      gcc_version:
+        description: "GCC version to install"
+        required: false
+        default: "11"
+        type: string
+jobs:
+  build:
+    runs-on: ${{ inputs.os_name }}
+    steps:
+      - name: set gcc and g++ version
+        if: inputs.gcc_version != '11'
+        run: |
+          sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+          sudo apt-get update
+          sudo apt-get install gcc-${{ inputs.gcc_version }} g++-${{ inputs.gcc_version }} -y
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-${{ inputs.gcc_version }} 60
+          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-${{ inputs.gcc_version }} 60
+      - name: setup ROS 2 environment
+        uses: ros-tooling/setup-ros@v0.7
+        with:
+          required-ros-distributions: ${{ inputs.ros_distro }}
+      - name: build and test ROS 2 packages
+        uses: ros-tooling/action-ros-ci@v0.3
+        with:
+          target-ros2-distro: ${{ inputs.ros_distro }}
+          vcs-repo-file-url: ${{ inputs.vcs_repo_file_url }}
+          skip-tests: ${{ inputs.skip_tests }}
+          colcon-defaults: |
+            {
+            "build": {
+                "cmake-args": [
+                    "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+                ]
+            }
+            }
+      - name: run Clang-Tidy review
+        uses: ZedThree/clang-tidy-review@v0.19.0
+        id: review
+        with:
+          max_comments: 25
+          annotations: false
+      - name: upload Clang-Tidy fixes
+        uses: ZedThree/clang-tidy-review/upload@v0.19.0
+        id: upload-review
+      - name: fail on Clang-Tidy warnings
+        if: steps.review.outputs.total_comments > 0
+        run: exit 1
