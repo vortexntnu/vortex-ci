@@ -57,11 +57,11 @@ jobs:
           skip-tests: ${{ inputs.skip_tests }}
           colcon-defaults: |
             {
-            "build": {
+              "build": {
                 "cmake-args": [
                     "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON
                 ]
-            }
+              }
             }
       - name: run Clang-Tidy review
         uses: ZedThree/clang-tidy-review@v0.19.0
