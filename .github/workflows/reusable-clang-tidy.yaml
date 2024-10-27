@@ -63,8 +63,9 @@ jobs:
                 ]
               }
             }
-      - name: List root directory
-        run: ls -R
+      - name: List ros_ws directory
+        working-directory: ros_ws
+        run: ls -la
       - name: List root directory
         run: ls -la
       - name: List build directory contents
