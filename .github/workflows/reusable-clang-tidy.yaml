@@ -66,5 +66,4 @@ jobs:
             }
       - name: Access Workspace Directory
         run: |
-          echo "ROS Workspace Directory: ${{ steps.ros_ci.outputs.ros-workspace-directory-name }}"
-          ls ${{ steps.ros_ci.outputs.ros-workspace-directory-name }}/src
+          find ${{ steps.ros_ci.outputs.ros-workspace-directory-name }}/src -type f
