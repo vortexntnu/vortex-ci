@@ -64,10 +64,16 @@ jobs:
                 ]
               }
             }
-      - name: Set base_dir
+      - name: Set source_dir
         run: |
             REPO_NAME=$(basename "${GITHUB_REPOSITORY}")
-            echo "base_dir=$(find ros_ws/src -type d -name ${REPO_NAME})" >> $GITHUB_ENV
-      - name: Run Clang-Tidy
+            echo "source_dir=$(find ${{ steps.ros_ci.outputs.ros-workspace-directory-name }}/src -type d -name ${REPO_NAME})" >> $GITHUB_ENV
+      - name: Get clang-tidy
         run: |
-          find "${base_dir}" -name '*.cpp' -o -name '*.hpp' | xargs clang-tidy -p build
+            apt-get update
+            apt-get install -y clang-tidy
+      - uses: ZehMatt/clang-tidy-annotations@v1.0.0
+        with:
+            build_dir: ${{ steps.ros_ci.outputs.ros-workspace-directory-name }}/build
+            source_dir: ${{ env.source_dir }}
+
