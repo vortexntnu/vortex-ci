@@ -63,6 +63,8 @@ jobs:
                 ]
               }
             }
+      - name: Inspect compile_commands.json paths
+        run: cat ros_ws/build/compile_commands.json | grep 'file'
       - name: List ros_ws directory
         working-directory: ros_ws/src
         run: ls -la
@@ -73,7 +75,7 @@ jobs:
           max_comments: 25
           annotations: false
           build_dir: ros_ws/build
-          base_dir: ros_ws/src
+          base_dir: ros_ws/src/**/*.*
       - name: upload Clang-Tidy fixes
         uses: ZedThree/clang-tidy-review/upload@v0.19.0
         id: upload-review
