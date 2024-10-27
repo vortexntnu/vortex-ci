@@ -63,6 +63,14 @@ jobs:
                 ]
               }
             }
+      - name: List root directory
+        run: ls -R
+      - name: List root directory
+        run: ls -la
+      - name: List build directory contents
+        run: ls -R build
+      - name: List src directory contents
+        run: ls -R src
       - name: run Clang-Tidy review
         uses: ZedThree/clang-tidy-review@v0.19.0
         id: review
