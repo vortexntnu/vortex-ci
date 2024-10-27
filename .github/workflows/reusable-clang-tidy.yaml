@@ -66,4 +66,4 @@ jobs:
             }
       - name: Access Workspace Directory
         run: |
-          find ${{ steps.ros_ci.outputs.ros-workspace-directory-name }}/src -type f
+          find ${{ steps.ros_ci.outputs.ros-workspace-directory-name }}/src -name '*.cpp' -o -name '*.h' | xargs clang-tidy -p build
