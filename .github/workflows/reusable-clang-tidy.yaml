@@ -64,9 +64,8 @@ jobs:
                 ]
               }
             }
-      - name: list files
-        run: |
-          ls -la ${{ steps.ros_ci.outputs.ros-workspace-directory-name }}/src/*/${{ github.event.repository.name }}
+      - name: Set base_dir
+        run: echo "base_dir=${{ steps.ros_ci.outputs.ros-workspace-directory-name }}/src/*/${{ github.event.repository.name }}" >> $GITHUB_ENV
       - name: run Clang-Tidy review
         uses: ZedThree/clang-tidy-review@v0.19.0
         id: review
@@ -74,7 +73,7 @@ jobs:
           max_comments: 25
           annotations: false
           build_dir: ${{ steps.ros_ci.outputs.ros-workspace-directory-name }}/build
-          base_dir: ${{ steps.ros_ci.outputs.ros-workspace-directory-name }}/src/*/${{ github.event.repository.name }}
+          base_dir: ${{ env.base_dir }}
       - name: upload Clang-Tidy fixes
         uses: ZedThree/clang-tidy-review/upload@v0.19.0
         id: upload-review
