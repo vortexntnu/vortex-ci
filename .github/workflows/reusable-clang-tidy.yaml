@@ -65,7 +65,12 @@ jobs:
               }
             }
       - name: Set base_dir
-        run: echo "base_dir=$(find ${{ steps.ros_ci.outputs.ros-workspace-directory-name }}/src -type d -name ${github.event.repository.name})" >> $GITHUB_ENV
+        run: |
+            REPO_NAME=$(basename "${GITHUB_REPOSITORY}")
+            echo "base_dir=$(find ros_ws/src -type d -name ${REPO_NAME})" >> $GITHUB_ENV
+      - name: Check base_dir
+        run: |
+            echo "Base directory is set to: $base_dir"
       - name: run Clang-Tidy review
         uses: ZedThree/clang-tidy-review@v0.19.0
         id: review
