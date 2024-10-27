@@ -68,20 +68,6 @@ jobs:
         run: |
             REPO_NAME=$(basename "${GITHUB_REPOSITORY}")
             echo "base_dir=$(find ros_ws/src -type d -name ${REPO_NAME})" >> $GITHUB_ENV
-      - name: Check base_dir
+      - name: Run Clang-Tidy
         run: |
-            echo "Base directory is set to: $base_dir"
-      - name: Adjust paths in compile_commands.json
-        run: |
-            sed -i "s|/github/workspace/ros_ws/src/[^/]*|$base_dir|g" ros_ws/build/compile_commands.json
-      - name: run Clang-Tidy review
-        uses: ZedThree/clang-tidy-review@v0.19.0
-        id: review
-        with:
-          max_comments: 25
-          annotations: false
-          build_dir: ${{ steps.ros_ci.outputs.ros-workspace-directory-name }}/build
-          base_dir: ${{ env.base_dir }}
-      - name: upload Clang-Tidy fixes
-        uses: ZedThree/clang-tidy-review/upload@v0.19.0
-        id: upload-review
+          find "${base_dir}" -name '*.cpp' -o -name '*.hpp' | xargs clang-tidy -p build
