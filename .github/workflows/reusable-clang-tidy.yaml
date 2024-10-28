@@ -67,7 +67,7 @@ jobs:
       - name: Set source_dir
         run: |
             REPO_NAME=$(basename "${GITHUB_REPOSITORY}")
-            echo "source_dir=$(find ${{ steps.ros_ci.outputs.ros-workspace-directory-name }}/src -type d -name ${REPO_NAME})" >> $GITHUB_ENV
+            echo "source_dir=$(find src -type d -name ${REPO_NAME})" >> $GITHUB_ENV
       - name: Get clang-tidy
         run: |
             sudo apt-get update
