@@ -1,5 +1,8 @@
 name: "PR Sphinx Docs Check and Deploy"
-on: [pull_request] 
+on:
+  push:
+    branches:
+      - main
 
 jobs:
   # Build the sphinx docs
