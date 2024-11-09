@@ -1,7 +1,7 @@
 name: ROS Build and Clang Tidy Analysis
 
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
       ros_distro:
         description: "ROS Distribution (e.g., humble, jazzy)"
