@@ -1,7 +1,7 @@
-name: Reusable Clang Tidy
-# Reusable GitHub Actions workflow to build all ROS 2 packages from source and run clang tidy
+name: ROS Build and Clang Tidy Analysis
+
 on:
-  workflow_call:
+  workflow_dispatch:
     inputs:
       ros_distro:
         description: "ROS Distribution (e.g., humble, jazzy)"
@@ -9,7 +9,7 @@ on:
         default: "humble"
         type: string
       os_name:
-        description: "Operating System to run the workflow on"
+        description: "Operating System for the build"
         required: false
         default: "ubuntu-22.04"
         type: string
@@ -33,11 +33,20 @@ on:
         required: false
         default: "11"
         type: string
+      clang_tidy_version:
+        description: "Version of clang-tidy to use"
+        required: false
+        default: "18"
+        type: string
+
 jobs:
+  # First Job: Build and Generate compile_commands.json
   build:
     runs-on: ${{ inputs.os_name }}
+    outputs:
+      workspace_dir: ${{ steps.upload_compile_commands.outputs.workspace_dir }}
     steps:
-      - name: set gcc and g++ version
+      - name: Set GCC and G++ version
         if: inputs.gcc_version != '11'
         run: |
           sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
@@ -45,11 +54,13 @@ jobs:
           sudo apt-get install gcc-${{ inputs.gcc_version }} g++-${{ inputs.gcc_version }} -y
           sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-${{ inputs.gcc_version }} 60
           sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-${{ inputs.gcc_version }} 60
-      - name: setup ROS 2 environment
+
+      - name: Setup ROS 2 environment
         uses: ros-tooling/setup-ros@v0.7
         with:
           required-ros-distributions: ${{ inputs.ros_distro }}
-      - name: build and test ROS 2 packages
+
+      - name: Build and test ROS 2 packages
         id: ros_ci
         uses: ros-tooling/action-ros-ci@v0.3
         with:
@@ -64,15 +75,30 @@ jobs:
                 ]
               }
             }
-      - name: Set source_dir
+
+      - name: Upload compile_commands.json
+        id: upload_compile_commands
+        uses: actions/upload-artifact@v3
+        with:
+          name: compile_commands
+          path: ${{ steps.ros_ci.outputs.ros-workspace-directory-name }}/build/compile_commands.json
+
+  # Second Job: Download and Run Clang-Tidy
+  clang_tidy:
+    runs-on: ubuntu-latest
+    needs: build  # This ensures that clang_tidy runs after the build job completes
+    steps:
+      - name: Download compile_commands.json
+        uses: actions/download-artifact@v3
+        with:
+          name: compile_commands
+          path: ./build  # Store in ./build where clang-tidy expects it
+
+      - name: Install Clang-Tidy
         run: |
-            REPO_NAME=$(basename "${GITHUB_REPOSITORY}")
-            echo "source_dir=$(find src -type d -name ${REPO_NAME})" >> $GITHUB_ENV
-      - name: Get clang-tidy
+          sudo apt-get update
+          sudo apt-get install -y clang-tidy-${{ inputs.clang_tidy_version }}
+
+      - name: Run Clang-Tidy
         run: |
-            sudo apt-get update
-            sudo apt-get install -y clang-tidy
-      - name: Run clang-tidy
-        run: |
-            cd ${{ steps.ros_ci.outputs.ros-workspace-directory-name }}
-            find "${source_dir}" -name '*.cpp' -o -name '*.hpp' | xargs clang-tidy -p build
+          find src -name '*.cpp' -o -name '*.hpp' | xargs clang-tidy-${{ inputs.clang_tidy_version }} -p build
