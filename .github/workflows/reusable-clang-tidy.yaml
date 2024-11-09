@@ -40,12 +40,12 @@ on:
         type: string
 
 jobs:
-  # First Job: Build and Generate compile_commands.json
-  build:
+  build_and_clang_tidy:
     runs-on: ${{ inputs.os_name }}
-    outputs:
-      workspace_dir: ${{ steps.upload_compile_commands.outputs.workspace_dir }}
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Set GCC and G++ version
         if: inputs.gcc_version != '11'
         run: |
@@ -60,7 +60,7 @@ jobs:
         with:
           required-ros-distributions: ${{ inputs.ros_distro }}
 
-      - name: Build and test ROS 2 packages
+      - name: Build and generate compile_commands.json
         id: ros_ci
         uses: ros-tooling/action-ros-ci@v0.3
         with:
@@ -76,34 +76,18 @@ jobs:
               }
             }
 
-      - name: Upload compile_commands.json
-        id: upload_compile_commands
-        uses: actions/upload-artifact@v3
-        with:
-          name: compile_commands
-          path: ${{ steps.ros_ci.outputs.ros-workspace-directory-name }}/build/compile_commands.json
-
-  # Second Job: Download and Run Clang-Tidy
-  clang_tidy_review:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Download compile_commands.json artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: compile_commands
-          path: ./build
+      - name: Verify compile_commands.json generation
+        run: |
+          if [ ! -f ${{ steps.ros_ci.outputs.ros-workspace-directory-name }}/build/compile_commands.json ]; then
+            echo "compile_commands.json not found!" && exit 1
+          fi
 
       - name: Run Clang Tidy Review
         uses: ZedThree/clang-tidy-review@v0.20.0
-        id: review
         with:
           token: ${{ github.token }}
-          build_dir: './build'  # Location of compile_commands.json
-          clang_tidy_version: '18'
+          build_dir: '${{ steps.ros_ci.outputs.ros-workspace-directory-name }}/build'
+          clang_tidy_version: ${{ inputs.clang_tidy_version }}
           clang_tidy_checks: '-*,performance-*,readability-*,bugprone-*,clang-analyzer-*,cppcoreguidelines-*,mpi-*,misc-*'
           include: "*.[ch],*.[ch]xx,*.[ch]pp,*.[ch]++,*.cc,*.hh"
           max_comments: 25
