@@ -1,6 +1,5 @@
 name: Reusable Source Build
 # Reusable GitHub Actions workflow to build all ROS 2 packages from source
-
 on:
   workflow_call:
     inputs:
@@ -34,6 +33,11 @@ on:
         required: false
         default: "11"
         type: string
+      requirements_url:
+        description: "URL to the requirements.sh file for additional dependencies"
+        required: false
+        default: ""
+        type: string
 jobs:
   build:
     runs-on: ${{ inputs.os_name }}
@@ -50,6 +54,13 @@ jobs:
         uses: ros-tooling/setup-ros@v0.7
         with:
           required-ros-distributions: ${{ inputs.ros_distro }}
+      - name: Download and install extra dependencies
+        if: inputs.requirements_url != ''
+        run: |
+          echo "Downloading and executing requirements.sh from: ${{ inputs.requirements_url }}"
+          curl -o requirements.sh ${{ inputs.requirements_url }}
+          chmod +x requirements.sh
+          ./requirements.sh
       - name: build and test ROS 2 packages
         uses: ros-tooling/action-ros-ci@v0.3
         with:
