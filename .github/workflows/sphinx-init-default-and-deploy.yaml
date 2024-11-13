@@ -3,10 +3,10 @@ name: Deploy Sphinx documentation
 on:
   push:
     branches:
-      - main
+      - feat/sphinx
   pull_request:
     branches:
-      - main
+      - feat/sphinx
   workflow_dispatch:
 
 permissions:
@@ -26,7 +26,7 @@ jobs:
       - name: Sphinx exist and make
         if: ${{ hashFiles('docs/conf.py') == '' && hashFiles('docs/index.rst') == '' && hashFiles('docs/Makefile') == '' && hashFiles('docs/make.bat') == ''}}
         run: |
-          git clone ${{ github.server_url }}/${{ github.repository }}.git --branch main --single-branch main
+          git clone ${{ github.server_url }}/${{ github.repository }}.git --branch feat/sphinx --single-branch feat/sphinx
           git clone git@github.com:vortexntnu/vortex-ci.git --branch sphinx/docs-template --single-branch sphinx/docs-template
           git config --global user.email "action@github.com"
           git config --global user.name "GitHub Action"
@@ -37,7 +37,7 @@ jobs:
       - name: Push changes
         uses: ad-m/github-push-action@master
         with:
-          branch: auto
+          branch: feat/sphinx
           github_token: ${{ secrets.GITHUB_TOKEN }}
   
 
