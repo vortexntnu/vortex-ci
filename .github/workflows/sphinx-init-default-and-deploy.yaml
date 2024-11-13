@@ -22,20 +22,16 @@ jobs:
         with:
           python-version: 3.7
       - run: pip install -U sphinx
-      
       # Step 2: Check if certain needed Sphinx files exist, if not we create defaults
       - name: Sphinx exist and make
         if: ${{ hashFiles('docs/conf.py') == '' && hashFiles('docs/index.rst') == '' && hashFiles('docs/Makefile') == '' && hashFiles('docs/make.bat') == ''}}
         run: |
-          git clone ${{ github.server_url }}/${{ github.repository }}.git --branch auto --single-branch auto
-          mkdir docs
-          echo "" > .nojekyll
-          cd docs
+          git clone ${{ github.server_url }}/${{ github.repository }}.git --branch main --single-branch main
+          git clone git@github.com:vortexntnu/vortex-ci.git --branch sphinx/docs-template --single-branch sphinx/docs-template
           git config --global user.email "action@github.com"
           git config --global user.name "GitHub Action"
-          sphinx-quickstart -q -p Vortex -a Vortex -v 1.0
           git add .
-          git commit -m "Update: Created files for Sphinx" -a || true
+          git commit -m "Update: Created template files for Sphinx" -a || true
 
       # Step 3: Push changes runner has made to repository
       - name: Push changes
