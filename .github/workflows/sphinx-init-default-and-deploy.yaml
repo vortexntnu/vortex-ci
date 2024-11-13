@@ -23,13 +23,13 @@ jobs:
           python-version: 3.7
           github_token: ${{ secrets.GITHUB_TOKEN }}
       - run: pip install -U sphinx
-      
+
       # Step 2: Check if certain needed Sphinx files exist, if not we create defaults
       - name: Sphinx exist and make
         if: ${{ hashFiles('docs/conf.py') == '' && hashFiles('docs/index.rst') == '' && hashFiles('docs/Makefile') == '' && hashFiles('docs/make.bat') == ''}}
         run: |
           git clone ${{ github.server_url }}/${{ github.repository }}.git --branch feat/sphinx --single-branch feat/sphinx
-          git clone git@github.com:vortexntnu/vortex-ci.git --branch sphinx/docs-template --single-branch sphinx/docs-template
+          git clone https://github.com/vortexntnu/vortex-ci.git --branch sphinx/docs-template --single-branch sphinx/docs-template
           git config --global user.email "action@github.com"
           git config --global user.name "GitHub Action"
           git add .
