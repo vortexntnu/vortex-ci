@@ -21,7 +21,9 @@ jobs:
       - uses: actions/setup-python@v2
         with:
           python-version: 3.7
+          github_token: ${{ secrets.GITHUB_TOKEN }}
       - run: pip install -U sphinx
+      
       # Step 2: Check if certain needed Sphinx files exist, if not we create defaults
       - name: Sphinx exist and make
         if: ${{ hashFiles('docs/conf.py') == '' && hashFiles('docs/index.rst') == '' && hashFiles('docs/Makefile') == '' && hashFiles('docs/make.bat') == ''}}
