@@ -31,7 +31,7 @@ on:
       gcc_version:
         description: "GCC version to install"
         required: false
-        default: "11"
+        default: "11" # Default GCC version commonly available on Ubuntu 22.04
         type: string
       requirements_url:
         description: "URL to the requirements.sh file for additional dependencies"
@@ -61,6 +61,23 @@ jobs:
           curl -o requirements.sh ${{ inputs.requirements_url }}
           chmod +x requirements.sh
           ./requirements.sh
+      # Check out the repository if no external requirements URL is provided
+      - name: Check out the repository
+        if: inputs.requirements_url == ''
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+      # Install extra dependencies from a local requirements.sh file if it exists in the root directory
+      - name: Install extra dependencies from local requirements.sh
+        if: inputs.requirements_url == ''
+        run: |
+          if [ -f requirements.sh ]; then
+            echo "Executing local requirements.sh from repository root directory"
+            chmod +x requirements.sh
+            ./requirements.sh
+          else
+            echo "No local requirements.sh found in root directory"
+          fi
       - name: build and test ROS 2 packages
         uses: ros-tooling/action-ros-ci@v0.3
         with:
