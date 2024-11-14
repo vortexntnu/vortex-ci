@@ -33,11 +33,11 @@ on:
         required: false
         default: "11" # Default GCC version commonly available on Ubuntu 22.04
         type: string
-      requirements_url:
-        description: "URL to the requirements.sh file for additional dependencies"
+      download_requirements:
+        description: "Download and execute requirements.sh if available"
         required: false
-        default: ""
-        type: string
+        default: false
+        type: boolean
 jobs:
   build:
     runs-on: ${{ inputs.os_name }}
@@ -54,29 +54,22 @@ jobs:
         uses: ros-tooling/setup-ros@v0.7
         with:
           required-ros-distributions: ${{ inputs.ros_distro }}
-      - name: Download and install extra dependencies
-        if: inputs.requirements_url != ''
-        run: |
-          echo "Downloading and executing requirements.sh from: ${{ inputs.requirements_url }}"
-          curl -o requirements.sh ${{ inputs.requirements_url }}
-          chmod +x requirements.sh
-          ./requirements.sh
-      # Check out the repository if no external requirements URL is provided
+      # Check out the repository to get access to requirements.sh if required
       - name: Check out the repository
-        if: inputs.requirements_url == ''
+        if: inputs.download_requirements
         uses: actions/checkout@v4
         with:
           ref: ${{ inputs.ref }}
-      # Install extra dependencies from a local requirements.sh file if it exists in the root directory
-      - name: Install extra dependencies from local requirements.sh
-        if: inputs.requirements_url == ''
+      # Conditionally download and execute requirements.sh if download_requirements is true and file exists
+      - name: Download and install extra dependencies if requirements.sh exists
+        if: inputs.download_requirements
         run: |
           if [ -f requirements.sh ]; then
-            echo "Executing local requirements.sh from repository root directory"
+            echo "Executing requirements.sh from repository root directory"
             chmod +x requirements.sh
             ./requirements.sh
           else
-            echo "No local requirements.sh found in root directory"
+            echo "requirements.sh file not found in repository root"
           fi
       - name: build and test ROS 2 packages
         uses: ros-tooling/action-ros-ci@v0.3
