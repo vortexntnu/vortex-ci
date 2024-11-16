@@ -37,7 +37,6 @@ on:
         description: "Path to a local script for managing dependencies not supported by rosdep or for pinning package versions"
         required: false
         default: ""
-        type: string
 jobs:
   build:
     runs-on: ${{ inputs.os_name }}
