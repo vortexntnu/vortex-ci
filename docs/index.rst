@@ -14,3 +14,11 @@ documentation for details.
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
+
+   ../Code/*
+
+
+Indices and tables
+==================
+* :ref:`genindex`
+* :ref:`modindex`
