@@ -46,7 +46,7 @@ jobs:
     env:
       TEMPORARY_REPO_PATH: repo
     steps:
-      - name: set gcc and g++ version
+      - name: set gcc and g++ version 
         if: inputs.gcc_version != '11'
         run: |
           sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
