@@ -1,0 +1,67 @@
+name: Industrial CI
+
+# This config uses industrial_ci (https://github.com/ros-industrial/industrial_ci.git).
+# For troubleshooting, see README (https://github.com/ros-industrial/industrial_ci/blob/master/README.rst)
+
+on:
+  workflow_call:
+    inputs:
+      os:
+        description: "Operating System to run the workflow on"
+        required: false
+        default: "ubuntu-22.04"
+        type: string
+      ros_distro:
+        description: "List of ROS distributions to test (JSON array)"
+        required: false
+        default: '["humble"]'
+        type: string
+      ros_repo:
+        description: "List of ROS repositories to test (JSON array)"
+        required: false
+        default: '["main,testing"]'
+        type: string
+      upstream_workspace:
+        description: "URL to the upstream workspace file"
+        required: false
+        default: ""
+        type: string
+      skip_tests:
+        description: "Skip running tests"
+        required: false
+        default: false
+        type: boolean
+      before_install_target_dependencies:
+        description: "Command to run before installing target dependencies"
+        required: false
+        default: ""
+        type: string
+jobs:
+  industrial_ci:
+    name: ROS ${{ matrix.ROS_DISTRO }} (${{ matrix.ROS_REPO }})
+    runs-on: ${{ inputs.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        ROS_DISTRO: ${{ fromJson(inputs.ros_distro) }}
+        ROS_REPO: ${{ fromJson(inputs.ros_repo) }}
+    env:
+      CCACHE_DIR: "${{ github.workspace }}/.ccache" # Directory for ccache (and how we enable ccache in industrial_ci)
+      BEFORE_INSTALL_TARGET_DEPENDENCIES: "bash ./requirements.sh" # Run extra dependencies setup script
+    steps:
+      - uses: actions/checkout@v4 # Clone the target repository
+      - uses: actions/cache@v4 # Fetch/store the directory used by ccache before/after the CI run
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          # This configuration will always create a new ccache cache starting off from the previous one (if any).
+          # Shared between all builds of the same ROS_DISTRO and ROS_REPO.
+          key: ccache-${{ matrix.ROS_DISTRO }}-${{ matrix.ROS_REPO }}-${{ github.run_id }}
+          restore-keys: |
+            ccache-${{ matrix.ROS_DISTRO }}-${{ matrix.ROS_REPO }}-
+      - uses: 'ros-industrial/industrial_ci@master' # Run industrial_ci
+        env:
+          ROS_DISTRO: ${{ matrix.ROS_DISTRO }} # Pass ROS_DISTRO explicitly
+          ROS_REPO: ${{ matrix.ROS_REPO }}     # Pass ROS_REPO explicitly
+          UPSTREAM_WORKSPACE: ${{ inputs.upstream_workspace }} # Pass upstream workspace URL
+          NOT_TEST_BUILD: ${{ inputs.skip_tests }} # Skip tests if specified
+          BEFORE_INSTALL_TARGET_DEPENDENCIES: ${{ env.BEFORE_INSTALL_TARGET_DEPENDENCIES }} # Extra dependencies step
