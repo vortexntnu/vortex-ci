@@ -32,6 +32,11 @@ on:
         required: false
         default: ""
         type: string
+      additional_debs:
+        description: "Additional Debian packages to install"
+        required: false
+        default: ""
+        type: string
 jobs:
   industrial_ci:
     name: ROS ${{ matrix.ROS_DISTRO }} (${{ matrix.ROS_REPO }})
@@ -44,6 +49,7 @@ jobs:
     env:
       CCACHE_DIR: "${{ github.workspace }}/.ccache" # Directory for ccache (and how we enable ccache in industrial_ci)
       BEFORE_INSTALL_TARGET_DEPENDENCIES: "${{ inputs.before_install_target_dependencies }}" # Run extra dependencies setup script
+      ADDITIONAL_DEBS: "${{ inputs.additional_debs }}" # Pass additional Debian packages as input
     steps:
       - uses: actions/checkout@v4 # Clone the target repository
       - uses: actions/cache@v4 # Fetch/store the directory used by ccache before/after the CI run
@@ -59,3 +65,4 @@ jobs:
           UPSTREAM_WORKSPACE: ${{ inputs.upstream_workspace }} # Pass upstream workspace URL
           NOT_TEST_BUILD: ${{ inputs.skip_tests }} # Skip tests if specified
           BEFORE_INSTALL_TARGET_DEPENDENCIES: ${{ env.BEFORE_INSTALL_TARGET_DEPENDENCIES }} # Extra dependencies step
+          ADDITIONAL_DEBS: ${{ inputs.additional_debs }} # Pass additional Debian packages as input
