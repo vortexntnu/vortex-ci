@@ -1,6 +1,4 @@
 name: Industrial CI
-# This config uses industrial_ci (https://github.com/ros-industrial/industrial_ci.git).
-# For troubleshooting, see README (https://github.com/ros-industrial/industrial_ci/blob/master/README.rst)
 on:
   workflow_call:
     inputs:
@@ -46,13 +44,12 @@ jobs:
     env:
       CCACHE_DIR: "${{ github.workspace }}/.ccache" # Directory for ccache (and how we enable ccache in industrial_ci)
       BEFORE_INSTALL_TARGET_DEPENDENCIES: "${{ inputs.before_install_target_dependencies }}" # Run extra dependencies setup script
+      ADDITIONAL_DEBS: "git" # Ensure git is installed
     steps:
       - uses: actions/checkout@v4 # Clone the target repository
       - uses: actions/cache@v4 # Fetch/store the directory used by ccache before/after the CI run
         with:
           path: ${{ env.CCACHE_DIR }}
-          # This configuration will always create a new ccache cache starting off from the previous one (if any).
-          # Shared between all builds of the same ROS_DISTRO and ROS_REPO.
           key: ccache-${{ matrix.ROS_DISTRO }}-${{ matrix.ROS_REPO }}-${{ github.run_id }}
           restore-keys: |
             ccache-${{ matrix.ROS_DISTRO }}-${{ matrix.ROS_REPO }}-
