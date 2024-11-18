@@ -1,8 +1,6 @@
 name: Industrial CI
-
 # This config uses industrial_ci (https://github.com/ros-industrial/industrial_ci.git).
 # For troubleshooting, see README (https://github.com/ros-industrial/industrial_ci/blob/master/README.rst)
-
 on:
   workflow_call:
     inputs:
@@ -61,7 +59,7 @@ jobs:
       - uses: 'ros-industrial/industrial_ci@master' # Run industrial_ci
         env:
           ROS_DISTRO: ${{ matrix.ROS_DISTRO }} # Pass ROS_DISTRO explicitly
-          ROS_REPO: ${{ matrix.ROS_REPO }}     # Pass ROS_REPO explicitly
+          ROS_REPO: ${{ matrix.ROS_REPO }} # Pass ROS_REPO explicitly
           UPSTREAM_WORKSPACE: ${{ inputs.upstream_workspace }} # Pass upstream workspace URL
           NOT_TEST_BUILD: ${{ inputs.skip_tests }} # Skip tests if specified
           BEFORE_INSTALL_TARGET_DEPENDENCIES: ${{ env.BEFORE_INSTALL_TARGET_DEPENDENCIES }} # Extra dependencies step
