@@ -45,7 +45,7 @@ jobs:
         ROS_REPO: ${{ fromJson(inputs.ros_repo) }}
     env:
       CCACHE_DIR: "${{ github.workspace }}/.ccache" # Directory for ccache (and how we enable ccache in industrial_ci)
-      BEFORE_INSTALL_TARGET_DEPENDENCIES: "bash ./requirements.sh" # Run extra dependencies setup script
+      BEFORE_INSTALL_TARGET_DEPENDENCIES: "${{ inputs.before_install_target_dependencies }}" # Run extra dependencies setup script
     steps:
       - uses: actions/checkout@v4 # Clone the target repository
       - uses: actions/cache@v4 # Fetch/store the directory used by ccache before/after the CI run
