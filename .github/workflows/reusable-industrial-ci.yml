@@ -17,7 +17,7 @@ on:
       ros_repo:
         description: "List of ROS repositories to test (JSON array)"
         required: false
-        default: '["main,testing"]'
+        default: '["main"]'
         type: string
       upstream_workspace:
         description: "URL to the upstream workspace file"
