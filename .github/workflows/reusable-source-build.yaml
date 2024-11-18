@@ -57,9 +57,8 @@ jobs:
       - uses: ros-tooling/setup-ros@v0.7
         with:
           required-ros-distributions: ${{ inputs.ros_distro }}
-      - name: Checkout repository
+      - uses: actions/checkout@v4
         if: inputs.dependency_script != ''
-        uses: actions/checkout@v4
         with:
           ref: ${{ inputs.ref }}
           path: ${{ env.TEMPORARY_REPO_PATH }}
