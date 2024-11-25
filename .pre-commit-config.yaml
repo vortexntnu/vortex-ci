@@ -20,7 +20,7 @@ repos:
       - id: end-of-file-fixer
       - id: check-yaml
   - repo: https://github.com/google/yamlfmt
-    rev: v0.13.0
+    rev: v0.14.0
     hooks:
       - id: yamlfmt
         name: YAMLFMT
