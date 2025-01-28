@@ -111,7 +111,7 @@ fi
 if ls | grep "vortex_ws"; then # check if vortex_ws exsists in current contex
     echo -ne "\r[${current_task}] Found vortex_ws, verifing integrity \n \033[2K \n"
     show_progress $current_subtask $tasks_in_total $error
-    
+
     # repo = ...
     ((current_subtask++))
     if ls vortex_ws/ | grep ""; then
@@ -176,13 +176,13 @@ fi
 
 
 tasks_in_total=37
-for current_task in $(seq $tasks_in_total) # simulates progress... 
+for current_task in $(seq $tasks_in_total) # simulates progress...
     do
     echo -ne "\e[1A"
     sleep 0.2 #simulate the task running
     error="false"
     echo -ne "\r[${current_task}] long and descriptive log message, which hopfuly are longer then the progress bar.       \n \033[2K \n"
-    
+
     if [ $current_task -eq 40 ]; then
         msg=$(printf "problem with task ${current_task}")
         error="true"
@@ -191,7 +191,7 @@ for current_task in $(seq $tasks_in_total) # simulates progress...
     else
         show_progress $current_task $tasks_in_total $error
     fi
-    
+
 done
 
 echo -ne "\nBeluga ready\n"

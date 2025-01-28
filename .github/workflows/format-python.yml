@@ -1,6 +1,6 @@
 name: Format python code
 
-on: 
+on:
   workflow_call:
 
 jobs:
@@ -9,12 +9,12 @@ jobs:
     name: Python formatter
     steps:
       - uses: actions/checkout@master
-        with: 
+        with:
           ref: ${{ github.head_ref }}
       - name: autoyapf
         id: autoyapf
         uses: mritunjaysharma394/autoyapf@v2
-        with: 
+        with:
           args: --style pep8 --recursive --in-place .
       - name: Check for modified files
         id: git-check

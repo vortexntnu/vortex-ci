@@ -20,4 +20,4 @@ if [ $packages_installed == "true" ]; then
     python3 main.py
 else
     echo -ne "\033[0;31mAbort\033[0m: did not launch autoFAT as python module is missing\n"
-fi  
+fi
