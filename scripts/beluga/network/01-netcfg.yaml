@@ -8,9 +8,10 @@ network:
       dhcp4: no
       optional: yes
 # standard
-      addresses: [10.0.0.99/16]
-      addresses: [169.254.15.100/24]
-      addresses: [10.24.167.200/24]
+      addresses:
+        - 10.0.0.99/16
+        - 169.254.15.100/24
+        - 10.24.167.200/24
       nameservers:
         addresses: [0.0.0.0, 8.8.8.8, 8.8.4.4]
   wifis:
