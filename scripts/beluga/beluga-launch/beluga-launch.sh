@@ -3,16 +3,16 @@
 # This file was curated by Vortex - DevOps
 # If any questions contact vortex devops
 
-# source files and decleare global variable
+# source files and declare global variable
 # -----------------------------------------------------------------------------------------------------------
 
-source ./tools/progress.sh      # progress bar, visulizing progress
+source ./tools/progress.sh      # progress bar, visualizing progress
 source ./tools/yaml-parser.sh    # for parsing yaml config file
 
 echo -ne "beluga-launch v0.0.1\n\n"
 
 # -----------------------------------------------------------------------------------------------------------
-# - init enviorment
+# - init environment
 # -----------------------------------------------------------------------------------------------------------
 
 echo -ne "\033[1;30m"   # muted / grey color
@@ -55,7 +55,7 @@ echo -ne "\033[0m"  # no color
 # -----------------------------------------------------------------------------------------------------------
 
 # task tracker / progressbar / log
-tasks_in_total=37   # total amout of subtasks
+tasks_in_total=37   # total amount of subtasks
 current_task=1      # current task working with, for log messages
 current_subtask=1   # current sub-task used with tasks in total to give an estimate of current progress
 error="false"       # gives error in progressbar, IMPORTANT after error is sent to progressbar stop script
@@ -108,8 +108,8 @@ fi
 ((current_subtask++))
 ((curent_task++))
 
-if ls | grep "vortex_ws"; then # check if vortex_ws exsists in current contex
-    echo -ne "\r[${current_task}] Found vortex_ws, verifing integrity \n \033[2K \n"
+if ls | grep "vortex_ws"; then # check if vortex_ws exists in current context
+    echo -ne "\r[${current_task}] Found vortex_ws, verifying integrity \n \033[2K \n"
     show_progress $current_subtask $tasks_in_total $error
 
     # repo = ...

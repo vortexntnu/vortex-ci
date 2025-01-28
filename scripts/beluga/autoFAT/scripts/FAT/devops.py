@@ -1,4 +1,4 @@
-# something something... intresting
+# something something... interesting
 # uses 4 progress advance.
 
 from scripts import bash

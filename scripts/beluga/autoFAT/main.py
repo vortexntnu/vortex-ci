@@ -57,7 +57,7 @@ def main() -> bool:
         # - setup
         # --------------------------------------------
 
-        # check enviorment, is correct packages installed?
+        # check environment, is correct packages installed?
         for pkg in env_pkgs:
             # res, msg = bash.hasDPKG(pkg)
             if not bash.hasDPKG(pkg):
@@ -75,7 +75,7 @@ def main() -> bool:
         # - DevOps FAT
         # --------------------------------------------
 
-        # set status of FAT, failed util succeded
+        # set status of FAT, failed util succeeded
         devops_fat_status[1] = "Failed"
 
         if devops.FAT(progress, autofat, config):
@@ -104,7 +104,7 @@ def main() -> bool:
         # - Perception FAT
         # --------------------------------------------
 
-        # set status of FAT, failed util succeded
+        # set status of FAT, failed util succeeded
         perception_fat_status[1] = "Failed"
 
         if perception.FAT(progress, autofat, config):
@@ -118,7 +118,7 @@ def main() -> bool:
         # - Autonomous FAT
         # --------------------------------------------
 
-        # set status of FAT, failed util succeded
+        # set status of FAT, failed util succeeded
         autonomous_fat_status[1] = "Failed"
 
         if autonomous.FAT(progress, autofat, config):
