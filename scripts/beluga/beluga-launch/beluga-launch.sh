@@ -34,7 +34,7 @@ else # could not find package
     apt-get install -yqq openssh-client | echo -ne "Installing openssh-client\n" # install package openssh-client
 fi
 
-# chack is bc is installed on craptop
+# check if bc is installed on craptop
 if dpkg -s bc | grep -q "Status:"; then
     echo -ne ""
 else
@@ -122,7 +122,7 @@ if ls | grep "vortex_ws"; then # check if vortex_ws exists in current context
     fi
     show_progress $current_subtask $tasks_in_total $error
 
-else # if vortex_ws did not exsist create repo
+else # if vortex_ws did not exist create repo
     echo -ne "\r[${current_task}] $warning Could not find vortex_ws, creating workspace $nc \n \033[2K \n"
     mkdir vortex_ws
     show_progress $current_subtask $tasks_in_total $error

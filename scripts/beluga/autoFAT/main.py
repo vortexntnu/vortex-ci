@@ -96,7 +96,7 @@ def main() -> bool:
 
         # TODO: start ROS
 
-        # sorce relevant stuff...
+        # source relevant stuff...
         # start ROS core
 
 
