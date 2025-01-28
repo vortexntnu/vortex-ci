@@ -8,6 +8,11 @@ on:
         required: false
         default: "ubuntu-latest"
         type: string
+      central_repo_name:
+        description: "Repo name containing this workflow"
+        required: false
+        default: "vortexntnu/vortex-ci@ci/semrl"
+        type: string
 jobs:
   semantic-release:
     runs-on: ${{ inputs.os_name }}
@@ -17,7 +22,7 @@ jobs:
       - name: Check out vortex-ci (central) repo
         uses: actions/checkout@v4
         with:
-          repository: ${{ github.repository }}
+          repository: ${{ inputs.central_repo_name }}
           path: .central
       - name: See files in .central
         run: ls -la .central
