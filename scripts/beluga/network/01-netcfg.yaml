@@ -1,0 +1,24 @@
+# Remember to set coorect password
+# And add this file to /etc/netplan/
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    eth0:
+      dhcp4: no
+      optional: yes
+# standard
+      addresses: [10.0.0.99/16]
+      addresses: [169.254.15.100/24]
+      addresses: [10.24.167.200/24]
+      nameservers:
+        addresses: [0.0.0.0, 8.8.8.8, 8.8.4.4]
+  wifis:
+    wlan0:
+      dhcp4: yes
+      optional: yes
+      access-points:
+        "Vortex":
+          password: "insert-password"
+        "Vortex-topside":
+          password: "insert-password"

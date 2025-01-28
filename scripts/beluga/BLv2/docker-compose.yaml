@@ -1,0 +1,18 @@
+version: "3"
+
+services:
+  linux-env:
+    container_name: b-sh-env
+    build:
+      context: .
+      dockerfile: Dockerfile
+    # image: ubuntu:20.04
+    ports:
+      - 7007:7007
+    tty: true
+    stdin_open: true
+    volumes:
+      - ./:/beluga
+
+# enter container by command:
+#   docker exec -it b-sh-env "/bin/bash"

@@ -1,0 +1,21 @@
+# Add config to ~/.ssh/
+
+# This file is ment to be added as /home/user/.ssh/config
+# VSCode reads the config file and allows you to easily connect to 
+# the drones.
+
+Host asv-rockpi
+  HostName 10.0.1.99
+  User rock
+
+Host asv-xavier
+  HostName 10.0.1.100
+  User vortex
+
+Host beluga-rpi
+  HostName 10.0.0.99
+  User ubuntu
+
+Host beluga-xavier
+  HostName 10.0.0.100
+  User vortex
