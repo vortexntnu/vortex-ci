@@ -19,6 +19,8 @@ jobs:
         with:
           repository: ${{ github.repository }}
           path: .central
+      - name: See files in .central
+        run: ls -la .central
       - name: Copy .releaserc to local workspace
         run: cp .central/.releaserc.config .
       - name: Set default branch environment variable
