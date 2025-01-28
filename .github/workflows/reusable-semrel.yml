@@ -16,7 +16,7 @@ on:
       central_repo_ref:
         description: "Branch or tag to checkout in the central repo"
         required: false
-        default: "main"
+        default: "ci/semrel"
         type: string
 jobs:
   semantic-release:
