@@ -1,0 +1,17 @@
+name: Run tests
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up ROS
+        uses: ros-tooling/setup-ros@v0.6
+        with:
+          required-ros-distributions: humble
+
+      - name: Build and test packages
+        uses: ros-tooling/action-ros-ci@v0.3
+        with:
+          target-ros2-distro: humble

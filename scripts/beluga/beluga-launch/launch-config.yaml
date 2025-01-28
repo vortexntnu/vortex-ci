@@ -1,0 +1,34 @@
+# launch-config.yaml
+
+# -------------------------------
+# Network
+# -------------------------------
+network:
+  rpi: 
+    ipaddress: '129.241.187.99'
+    user: 'Ubuntu'
+    pwd: 'False'
+  xavier:
+    idaddress: '129.241.187.100'
+    user: 'Vortex'
+    pwd: 'True'
+
+# -------------------------------
+# ROS
+# -------------------------------
+ROS:
+  rpi:
+    launch:
+      - package: 'AUV-setup'
+        file: 'beluga-auv.launch'
+    nodes:
+      - name: 'name1'
+        active: 'True'
+      - name: 'name2'
+        active: 'False'
+  xavier:
+    packages:
+      - name: 'hei'
+        active: 'True'
+    
+    

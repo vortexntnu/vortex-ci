@@ -1,0 +1,29 @@
+# --------------------------------------------
+# - config file
+# --------------------------------------------
+
+version: 0.1.1
+name: auto-FAT
+owner: Vortex - DevOps
+
+# nettwork
+# --------------------------------------------
+network:
+  # rpi network
+  - name: rpi 
+    ip_address: 127.0.0.1
+    user: ubuntu
+    password: ''
+    env_var:
+      - name: HOME
+        value: /root
+
+
+  # xavier network
+  - name: xavier 
+    ip_address: 127.0.0.1
+    user: vortex
+    password: ${XAVIER_PWD}
+    env_var:
+      - name: HOME
+        value: /root
