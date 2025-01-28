@@ -21,7 +21,7 @@ def ssh_run(ip: str, user: str, pwd: str, command: str) -> bool:
     # ssh connect you to another device
     # you can "pipe" a command using ssh to execute the command on another device
     ssh_command = 'sshpass -p "{}" ssh {}@{} "{}"'.format(pwd, user, ip, command)
-    
+
     return run(ssh_command)
 
 # check if apt package exist on craptop
@@ -48,7 +48,7 @@ def ping(ip: str) -> bool:
 # test ssh by try to run ls though ssh
 def ssh_ls(device: object) -> bool:
     command = 'ls > /dev/null 2>&1'
-    
+
     if ssh_run(device["ip_address"], device["user"], device["password"], command):
         return True
     else:

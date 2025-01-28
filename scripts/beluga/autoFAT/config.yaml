@@ -10,7 +10,7 @@ owner: Vortex - DevOps
 # --------------------------------------------
 network:
   # rpi network
-  - name: rpi 
+  - name: rpi
     ip_address: 129.241.187.99
     user: ubuntu
     password: ''
@@ -24,7 +24,7 @@ network:
 
 
   # xavier network
-  - name: xavier 
+  - name: xavier
     ip_address: 129.241.187.100
     user: vortex
     password: gladlaks
@@ -35,6 +35,3 @@ network:
         value: 129.241.187.100
       - name: ROS_HOSTNAME
         value: 129.241.187.100
-
-
-

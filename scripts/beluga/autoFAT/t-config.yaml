@@ -10,7 +10,7 @@ owner: Vortex - DevOps
 # --------------------------------------------
 network:
   # rpi network
-  - name: rpi 
+  - name: rpi
     ip_address: 127.0.0.1
     user: ubuntu
     password: ''
@@ -20,7 +20,7 @@ network:
 
 
   # xavier network
-  - name: xavier 
+  - name: xavier
     ip_address: 127.0.0.1
     user: vortex
     password: ${XAVIER_PWD}
