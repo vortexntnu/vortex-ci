@@ -1,0 +1,30 @@
+name: Reusable Semantic Release
+# Reusable GitHub Actions workflow to run semantic-release on a repository
+on:
+  workflow_call:
+    inputs:
+      os_name:
+        description: "Operating System to run the workflow on"
+        required: false
+        default: "ubuntu-latest"
+        type: string
+jobs:
+  semantic-release:
+    runs-on: ${{ inputs.os_name }}
+    steps:
+      - name: Check out calling repo
+        uses: actions/checkout@v4
+      - name: Check out vortex-ci (central) repo
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository }}
+          path: .central
+      - name: Copy .releaserc to local workspace
+        run: cp .central/.releaserc .
+      - name: Semantic Release
+        uses: cycjimmy/semantic-release-action@v4.1.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          extra_plugins: |
+            @semantic-release/github@v11.0.0
