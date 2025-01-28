@@ -16,7 +16,7 @@ on:
       central_repo_ref:
         description: "Branch or tag to checkout in the central repo"
         required: false
-        default: "ci/semrel"
+        default: "main"
         type: string
       default_branch:
         description: "Default branch of the repository"
@@ -35,8 +35,6 @@ jobs:
           repository: ${{ inputs.central_repo_name }}
           ref: ${{ inputs.central_repo_ref }}
           path: .central
-      - name: See files in .central
-        run: ls -la .central
       - name: Copy .releaserc to local workspace
         run: cp .central/.releaserc .
       - name: Semantic Release
