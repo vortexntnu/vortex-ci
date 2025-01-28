@@ -1,7 +1,7 @@
 # Add config to ~/.ssh/
 
 # This file is ment to be added as /home/user/.ssh/config
-# VSCode reads the config file and allows you to easily connect to 
+# VSCode reads the config file and allows you to easily connect to
 # the drones.
 
 Host asv-rockpi

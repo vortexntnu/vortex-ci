@@ -19,13 +19,6 @@ repos:
       - id: trailing-whitespace
       - id: end-of-file-fixer
       - id: check-yaml
-  - repo: https://github.com/google/yamlfmt
-    rev: v0.14.0
-    hooks:
-      - id: yamlfmt
-        name: YAMLFMT
-        description: formats yaml files consistently.
-        files: \.(yml|yaml)$
   # Spellcheck in comments and docs
   - repo: https://github.com/codespell-project/codespell
     rev: v2.3.0

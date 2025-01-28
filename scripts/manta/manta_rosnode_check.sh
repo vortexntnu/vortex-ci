@@ -46,4 +46,3 @@ for i in "${nodes_not_running[@]}"
 do
    echo -e "${RED}NOT OK: $i ${NC}"
 done
-

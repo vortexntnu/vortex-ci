@@ -49,10 +49,10 @@ def main() -> bool:
         TextColumn("[progress.description]{task.description}"),
         BarColumn(complete_style="cyan", finished_style="green"),
         TaskProgressColumn(),
-        TimeElapsedColumn(),    
+        TimeElapsedColumn(),
     ) as progress:
         autofat = progress.add_task("[cyan]AutoFAT ", total=8)
-        
+
         # --------------------------------------------
         # - setup
         # --------------------------------------------
@@ -83,7 +83,7 @@ def main() -> bool:
             devops_fat_status[0] = True
         else:
             return False
-        
+
         # --------------------------------------------
         # - Validate ROS
         # --------------------------------------------
@@ -98,7 +98,7 @@ def main() -> bool:
 
         # sorce relevant stuff...
         # start ROS core
-        
+
 
         # --------------------------------------------
         # - Perception FAT
@@ -126,7 +126,7 @@ def main() -> bool:
             autonomous_fat_status[0] = True
         else:
             return False
-        
+
         # --------------------------------------------
         # - Stop ROS
         # --------------------------------------------
@@ -139,14 +139,14 @@ def main() -> bool:
 def raport():
     if devops_fat_status[0]:
         print("\nDevOps FAT: \t\t", "\033[32m", devops_fat_status[1], "\033[0m", sep="")
-    else: 
+    else:
         print("\nDevOps FAT: \t\t", "\033[0;31m", devops_fat_status[1], "\033[0m", sep="")
 
     if perception_fat_status[0]:
         print("Perception FAT: \t", "\033[32m", perception_fat_status[1], "\033[0m", sep="")
     else:
         print("Perception FAT: \t", "\033[0;31m", perception_fat_status[1], "\033[0m", sep="")
-    
+
     if autonomous_fat_status[0]:
         print("autonomous FAT: \t", "\033[32m", autonomous_fat_status[1], "\033[0m", sep="")
     else:

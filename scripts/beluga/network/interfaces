@@ -1,4 +1,4 @@
-# Add this file to /etc/network on the xavier 
+# Add this file to /etc/network on the xavier
 
 #interfaces(5) file used by ifup(8) and ifdown(8)
 # Include files from /etc/network/interfaces.d:

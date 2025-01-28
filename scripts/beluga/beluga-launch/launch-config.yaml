@@ -4,7 +4,7 @@
 # Network
 # -------------------------------
 network:
-  rpi: 
+  rpi:
     ipaddress: '129.241.187.99'
     user: 'Ubuntu'
     pwd: 'False'
@@ -30,5 +30,3 @@ ROS:
     packages:
       - name: 'hei'
         active: 'True'
-    
-    
