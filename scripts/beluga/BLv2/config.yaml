@@ -10,7 +10,7 @@ contact: Vortex - DevOps
 # --------------------------------------------
 network:
 
-  # rasberry pi ip-adress
+  # raspberry pi ip-adress
   rpi: 10.0.1.99
 
   # xavier ip-adress

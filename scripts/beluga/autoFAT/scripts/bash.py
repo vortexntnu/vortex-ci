@@ -15,7 +15,7 @@ def run(command: str) -> bool:
         # environment dont have pkg
         return False
 
-# add ssh wraping to command
+# add ssh wrapping to command
 def ssh_run(ip: str, user: str, pwd: str, command: str) -> bool:
     # sshpass applies the password to an ssh command
     # ssh connect you to another device
