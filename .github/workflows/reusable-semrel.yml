@@ -8,6 +8,16 @@ on:
         required: false
         default: "ubuntu-latest"
         type: string
+      central_repo_name:
+        description: "Repo name containing this workflow"
+        required: false
+        default: "vortexntnu/vortex-ci"
+        type: string
+      central_repo_ref:
+        description: "Branch or tag to checkout in the central repo"
+        required: false
+        default: "ci/semrel"
+        type: string
       default_branch:
         description: "Default branch of the repository"
         required: false
@@ -19,6 +29,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Checkout central repo
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ inputs.central_repo_name }}
+          ref: ${{ inputs.central_repo_ref }}
+          path: .central
+      - name: See files in .central
+        run: ls -la .central
+      - name: Copy .releaserc to local workspace
+        run: cp .central/.releaserc .
       - name: Semantic Release
         uses: cycjimmy/semantic-release-action@v4.1.1
         env:
