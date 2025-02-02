@@ -48,8 +48,6 @@ jobs:
         ROS_REPO: ${{ fromJson(inputs.ros_repo) }}
     env:
       CCACHE_DIR: "${{ github.workspace }}/.ccache" # Directory for ccache (and how we enable ccache in industrial_ci)
-      BEFORE_INSTALL_TARGET_DEPENDENCIES: "${{ inputs.before_install_target_dependencies }}" # Run extra dependencies setup script
-      ADDITIONAL_DEBS: "${{ inputs.additional_debs }}" # Pass additional Debian packages as input
     steps:
       - uses: actions/checkout@v4 # Clone the target repository
       - uses: actions/cache@v4 # Fetch/store the directory used by ccache before/after the CI run
@@ -58,11 +56,21 @@ jobs:
           key: ccache-${{ matrix.ROS_DISTRO }}-${{ matrix.ROS_REPO }}-${{ github.run_id }}
           restore-keys: |
             ccache-${{ matrix.ROS_DISTRO }}-${{ matrix.ROS_REPO }}-
+      # Make the before_install_target_dependencies script executable
+      - name: Make script executable if provided
+        if: inputs.before_install_target_dependencies != ''
+        run: |
+          if [ -f "${{ inputs.before_install_target_dependencies }}" ]; then
+            echo "Making script executable: ${{ inputs.before_install_target_dependencies }}"
+            chmod +x "${{ inputs.before_install_target_dependencies }}"
+          else
+            echo "Provided path is not a file: ${{ inputs.before_install_target_dependencies }}"
+          fi
       - uses: 'ros-industrial/industrial_ci@master' # Run industrial_ci
         env:
           ROS_DISTRO: ${{ matrix.ROS_DISTRO }} # Pass ROS_DISTRO explicitly
           ROS_REPO: ${{ matrix.ROS_REPO }} # Pass ROS_REPO explicitly
           UPSTREAM_WORKSPACE: ${{ inputs.upstream_workspace }} # Pass upstream workspace URL
           NOT_TEST_BUILD: ${{ inputs.skip_tests }} # Skip tests if specified
-          BEFORE_INSTALL_TARGET_DEPENDENCIES: ${{ env.BEFORE_INSTALL_TARGET_DEPENDENCIES }} # Extra dependencies step
+          BEFORE_INSTALL_TARGET_DEPENDENCIES: ${{ inputs.before_install_target_dependencies }} # Extra dependencies step
           ADDITIONAL_DEBS: ${{ inputs.additional_debs }} # Pass additional Debian packages as input
