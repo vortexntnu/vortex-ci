@@ -1,11 +1,9 @@
 # vortex-ci
-Github actions / workflows, vortex config and setup files.
+This repository holds reusable workflows for CI.
+Supported workflows are documented [here](/.github/workflows/README.md)!
 
 ## Goal
-As we continue to develop more and more workflows, some workflows might already exist in some repo or a workflow is needed in several repos. The goal with this repository is to create a bot to manage all workflows, you state what workflow you need in the config.yaml file and the bot copies that workflow from the workflows folder to your repository.
-
-## Workflows
-Supported workflows are documented [here](./.github/workflows/README.md)
+Our goal is to centralize and simplify the management of CI/CD workflows. By keeping all reusable workflows in one central repository, we ensure consistency across projects and reduce maintenance overhead.
 
 ### How to add a workflow to a repo
 1. In the chosen repo, click the `Actions` tab
