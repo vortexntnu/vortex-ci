@@ -2,15 +2,23 @@
 
 ## reusable-industrial-ci.yml
 This reusable workflow uses [industrial-ci](https://github.com/ros-industrial/industrial_ci) to verify that your ROS packages build and install correctly, and runs unit/system tests if defined. You can pass in the following inputs:
-- **os**: Operating System for running the workflow (default: "ubuntu-22.04").
-- **ros_distro**: JSON array of ROS distributions (default: '["humble"]').
-- **ros_repo**: JSON array of ROS repositories (default: '["main"]').
-- **upstream_workspace**: URL or path to a .repos file containing the external repositories required for the build.
-- **skip_tests**: Boolean to skip running tests.
-- **before_install_target_dependencies**: Command or path to script to run before installing dependencies.
-- **additional_debs**: Additional Debian packages to install.
+- ```os```: Operating System for running the workflow (default: "ubuntu-22.04").
+- ```ros_distro```: JSON array of ROS distributions (default: '["humble"]').
+- ```ros_repo```: JSON array of ROS repositories (default: '["main"]').
+- ```upstream_workspace```: URL or path to a .repos file containing the external repositories required for the build.
+- ```skip_tests```: Boolean to skip running tests.
+- ```before_install_target_dependencies```: Command or path to script to run before installing dependencies.
+- ```additional_debs```: Additional Debian packages to install.
 
-### Additional setup: N/A
+#### Additional setup:
+- **.repos file**: If necessary, include a .repos file that specifies extra repositories required by other packages in the repository. Provide the path to this file in the ```upstream_workspace``` input. For example:
+```yml
+repositories:
+  vortex-msgs:
+    type: git
+    url: https://github.com/vortexntnu/vortex-msgs.git
+
+```
 ### Here is an example of how to use the reusable workflow in your repository:
 ```yml
 name: Industrial CI
@@ -28,7 +36,7 @@ jobs:
 
 ## pre-commit-config.yaml
 This file sets up the [pre-commit](https://pre-commit.com/) tool to automatically check and format code before every commit, ensuring consistent code quality. You can also integrate [pre-commit-ci](https://pre-commit.ci/) to run these checks on every push to a pull request and automatically fix issues.
-### Additional setup:
+#### Additional setup:
 - ruff.toml: Configuration for the Python linter [ruff](https://docs.astral.sh/ruff/). (See an example in [ruff-toml](https://github.com/vortexntnu/vortex-ci/blob/main/ruff-toml))
 - .clang-format: Configuration for formatting C/C++ code with [clang-format](https://clang.llvm.org/docs/ClangFormat.html).
 (See an example in [.clang-format](https://github.com/vortexntnu/vortex-ci/blob/main/.clang-format))
@@ -125,11 +133,11 @@ ci:
 
 ## reusable-semrel.yml
 This reusable workflow uses [semantic-release](https://github.com/cycjimmy/semantic-release-action/tree/v4.1.1/) to automate semantic versioning. It generates version numbers based on your commit messages, creates Git tags, and publishes release notes. You can pass in the following inputs:
-- **os**: Operating System for running the workflow (default: "ubuntu-latest").
-- **central_repo_name**: Repo name containing this workflow (default: "vortexntnu/vortex-ci").
-- **central_repo_ref**: Branch or tag to checkout in the central repo (default: "main").
-- **default_branch**: Default branch of the repository (default: ${{ github.event.repository.default_branch }}).
-### Additional setup: N/A
+- ```os```: Operating System for running the workflow (default: "ubuntu-latest").
+- ```central_repo_name```: Repo name containing this workflow (default: "vortexntnu/vortex-ci").
+- ```central_repo_ref```: Branch or tag to checkout in the central repo (default: "main").
+- ```default_branch```: Default branch of the repository (default: ${{ github.event.repository.default_branch }}).
+#### Additional setup: N/A
 ### Here is an example of how to use the reusable workflow in your repository:
 ```yml
 name: Semantic Release
