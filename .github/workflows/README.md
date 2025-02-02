@@ -11,13 +11,12 @@ This reusable workflow uses [industrial-ci](https://github.com/ros-industrial/in
 - ```additional_debs```: Additional Debian packages to install.
 
 #### Additional setup:
-- **.repos file**: If necessary, include a .repos file that specifies extra repositories required by other packages in the repository. Provide the path to this file in the ```upstream_workspace``` input. For example:
+- **.repos file**: If necessary, include a .repos file that specifies extra repositories required by packages in the repository. Provide the path to this file in the ```upstream_workspace``` input. Example of a .repos file:
 ```yml
 repositories:
   vortex-msgs:
     type: git
     url: https://github.com/vortexntnu/vortex-msgs.git
-
 ```
 ### Here is an example of how to use the reusable workflow in your repository:
 ```yml
@@ -133,11 +132,12 @@ ci:
 ```
 
 ## reusable-semrel.yml
-This reusable workflow uses [semantic-release](https://github.com/cycjimmy/semantic-release-action/tree/v4.1.1/) to automate semantic versioning. It generates version numbers based on your commit messages, creates Git tags, and publishes release notes. You can pass in the following inputs:
+This reusable workflow uses [semantic-release](https://github.com/cycjimmy/semantic-release-action/tree/v4.1.1/) to automate semantic versioning. It generates version numbers based on your commit messages, creates Git tags, and publishes release notes. It uses the [.releaserc](/.releaserc) file in this repository to configure the release process. You can pass in the following inputs:
 - ```os```: Operating System for running the workflow (default: "ubuntu-latest").
 - ```central_repo_name```: Repo name containing this workflow (default: "vortexntnu/vortex-ci").
 - ```central_repo_ref```: Branch or tag to checkout in the central repo (default: "main").
 - ```default_branch```: Default branch of the repository (default: ${{ github.event.repository.default_branch }}).
+- ```releaserc```: Path to a custom .releaserc file in your repository (by default, the workflow uses the one provided in this repo). - ***(TODO)***
 #### Additional setup: N/A
 ### Here is an example of how to use the reusable workflow in your repository:
 ```yml
