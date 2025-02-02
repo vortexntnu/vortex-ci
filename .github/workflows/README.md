@@ -40,6 +40,7 @@ This file sets up the [pre-commit](https://pre-commit.com/) tool to automaticall
 - ruff.toml: Configuration for the Python linter [ruff](https://docs.astral.sh/ruff/). (See an example in [ruff-toml](https://github.com/vortexntnu/vortex-ci/blob/main/ruff-toml))
 - .clang-format: Configuration for formatting C/C++ code with [clang-format](https://clang.llvm.org/docs/ClangFormat.html).
 (See an example in [.clang-format](https://github.com/vortexntnu/vortex-ci/blob/main/.clang-format))
+- ***The ```pre-commit-config.yaml``` file should be placed in the root of the repository***.
 ### Here is an example configuration file with General, Python, C/C++, and Spellcheck Hooks:
 ```yaml
 # To use:
