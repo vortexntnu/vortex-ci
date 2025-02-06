@@ -3,7 +3,7 @@ name: Reusable Semantic Release
 on:
   workflow_call:
     inputs:
-      os_name:
+      os:
         description: "Operating System to run the workflow on"
         required: false
         default: "ubuntu-latest"
@@ -25,7 +25,7 @@ on:
         type: string
 jobs:
   semantic-release:
-    runs-on: ${{ inputs.os_name }}
+    runs-on: ${{ inputs.os }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
