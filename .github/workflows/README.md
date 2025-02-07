@@ -36,7 +36,7 @@ jobs:
 ## pre-commit-config.yaml
 This file sets up the [pre-commit](https://pre-commit.com/) tool to automatically check and format code before every commit, ensuring consistent code quality. You can also integrate [pre-commit-ci](https://pre-commit.ci/) to run these checks on every push to a pull request and automatically fix issues.
 #### Additional setup:
-- ruff.toml: Configuration for the Python linter [ruff](https://docs.astral.sh/ruff/). (See an example in [ruff-toml](https://github.com/vortexntnu/vortex-ci/blob/main/ruff-toml))
+- ruff.toml: Configuration for the Python linter [ruff](https://docs.astral.sh/ruff/). (See an example in [ruff.toml](https://github.com/vortexntnu/vortex-ci/blob/main/ruff.toml))
 - .clang-format: Configuration for formatting C/C++ code with [clang-format](https://clang.llvm.org/docs/ClangFormat.html).
 (See an example in [.clang-format](https://github.com/vortexntnu/vortex-ci/blob/main/.clang-format))
 - ***The ```pre-commit-config.yaml``` file must be placed in the root of the repository***.
