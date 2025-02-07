@@ -7,7 +7,8 @@ This reusable workflow uses [industrial-ci](https://github.com/ros-industrial/in
 - ```ros_repo```: JSON array of ROS repositories (default: '["main"]').
 - ```upstream_workspace```: URL or path to a .repos file containing the external repositories required for the build.
 - ```skip_tests```: Boolean to skip running tests.
-- ```before_install_target_dependencies```: Command or path to script to run before installing dependencies.
+- ```before_install_target_dependencies```: Command or path to script to run before installing dependencies. Used for installing dependencies that are not supported by rosdep, allowing custom scripts or commands to handle those cases before the main dependency installation process.
+
 - ```additional_debs```: Additional Debian packages to install.
 
 #### Additional setup:
