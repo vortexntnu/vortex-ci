@@ -96,7 +96,8 @@ jobs:
               }
             }
           colcon-mixin-repository: https://raw.githubusercontent.com/colcon/colcon-mixin-repository/master/index.yaml
-
+      - name: List coverage files
+        run: find ros_ws -name .coverage
       - name: Test coverage tools
         if: ${{ inputs.debug }}
         run: |
