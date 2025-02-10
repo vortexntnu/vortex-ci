@@ -75,35 +75,13 @@ jobs:
       - id: package_list_action
         uses: ros-controls/ros2_control_ci/.github/actions/set-package-list@master
 
-      - name: Check for local repos file
-        id: check_local_repos
-        run: |
-          if [ -n "${{ inputs.repos_file }}" ]; then
-            echo "Input repos file provided: '${{ inputs.repos_file }}'"
-            if [ -f "${{ inputs.repos_file }}" ]; then
-              echo "Specified repos file found"
-              echo "repo_file=${{ inputs.repos_file }}" >> $GITHUB_OUTPUT
-            else
-              echo "Specified repos file not found: '${{ inputs.repos_file }}'"
-              echo "repo_file=" >> $GITHUB_OUTPUT
-            fi
-          else
-            DEFAULT_FILE="${{ steps.package_list_action.outputs.repo_name }}.${{ inputs.ros_distro }}.repos"
-            if [ -f "$DEFAULT_FILE" ]; then
-              echo "Default repos file found: $DEFAULT_FILE"
-              echo "repo_file=$DEFAULT_FILE" >> $GITHUB_OUTPUT
-            else
-              echo "No local repos file found"
-              echo "repo_file=" >> $GITHUB_OUTPUT
-            fi
-
       - uses: ros-tooling/action-ros-ci@0.3.16
         with:
           target-ros2-distro: ${{ inputs.ros_distro }}
           import-token: ${{ secrets.GITHUB_TOKEN }}
           # Build all packages listed here
           package-name: ${{ steps.package_list_action.outputs.package_list }}
-          vcs-repo-file-url: ${{ steps.check_local_repos.outputs.repo_file }}
+          vcs-repo-file-url: ${{ inputs.repos_file }}
           colcon-defaults: |
             {
               "build": {
