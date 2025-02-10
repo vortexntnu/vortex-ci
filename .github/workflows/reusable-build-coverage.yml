@@ -1,0 +1,140 @@
+name: Reusable Coverage Build
+on:
+  workflow_call:
+    inputs:
+      ros_distro:
+        description: 'ROS2 distribution name'
+        required: true
+        type: string
+      debug:
+        description: 'Add debug output'
+        type: boolean
+        default: false
+
+jobs:
+  coverage:
+    name: coverage build ${{ inputs.ros_distro }}
+    runs-on: ubuntu-latest
+    container: ghcr.io/sloretz/ros:${{ inputs.ros_distro }}-ros-base
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: "Determine prerequisites"
+        id: prereq
+        run: |
+          command -v sudo >/dev/null 2>&1 || (apt update && apt install -y sudo)
+          sudo apt update
+          echo "need_node=$(command -v node >/dev/null 2>&1 && echo 0 || echo 1)" >> $GITHUB_OUTPUT
+          echo "need_ros2=$(if [ -d "/opt/ros/${{ inputs.ros_distro }}" ]; then echo 0; else echo 1; fi)" >> $GITHUB_OUTPUT
+
+      # needed for github actions, and only if a bare ubuntu image is used
+      - uses: actions/setup-node@v4
+        if: ${{ steps.prereq.outputs.need_node == '1' && !env.ACT }}
+      - name: Install node
+        # Consider switching to https://github.com/actions/setup-node when it works
+        # https://github.com/nektos/act/issues/973
+        if: ${{ steps.prereq.outputs.need_node == '1' && env.ACT }}
+        run: |
+          sudo apt install -y curl
+          curl -sS https://webi.sh/node | sh
+          echo ~/.local/opt/node/bin >> $GITHUB_PATH
+
+      # overwrite ros distro with testing
+      - uses: ros-tooling/setup-ros@0.7.9
+        with:
+          use-ros2-testing: true
+      - name: Install coverage tools
+        # https://coverage.readthedocs.io/en/7.6.1/
+        # https://github.com/colcon/colcon-coveragepy-result
+        # https://github.com/colcon/colcon-lcov-result
+        # install coverage.py in a virtual environment and add it to the PATH
+        # in the end it has to be available in the PATH for codecov-action
+        run: |
+          set -v
+          sudo apt-get install -qq lcov python3-colcon-lcov-result
+          sudo apt-get install -qq python3-colcon-coveragepy-result python3-pytest-cov python3-pip python3-venv
+          python3 -m venv ~/.venv --system-site-packages
+          source ~/.venv/bin/activate
+          python3 -m pip install coverage --upgrade
+          echo PATH=$PATH >> $GITHUB_ENV
+      - name: Test coverage tools
+        if: ${{ inputs.debug }}
+        run: |
+          pwd
+          which coverage || true
+          python3 -m coverage --version || true
+          coverage --version || true
+          source ~/.venv/bin/activate || true
+          python3 -m coverage --version || true
+          coverage --version || true
+          which coverage || true
+          ls ~/.venv/bin || true
+      - uses: actions/checkout@v4
+      - id: package_list_action
+        uses: ros-controls/ros2_control_ci/.github/actions/set-package-list@master
+      - name: Check for local repos file
+        id: check_local_repos
+        run: |
+          if [ -f ${{ steps.package_list_action.outputs.repo_name }}.${{ inputs.ros_distro }}.repos ]; then
+            echo "Local repos file found"
+            echo "repo_file=${{ steps.package_list_action.outputs.repo_name }}.${{ inputs.ros_distro }}.repos" >> $GITHUB_OUTPUT
+          else
+            echo "No local repos file found"
+            echo "repo_file=" >> $GITHUB_OUTPUT
+          fi
+      - uses: ros-tooling/action-ros-ci@0.3.16
+        with:
+          target-ros2-distro: ${{ inputs.ros_distro }}
+          import-token: ${{ secrets.GITHUB_TOKEN }}
+          # build all packages listed here
+          package-name: ${{ steps.package_list_action.outputs.package_list }}
+          vcs-repo-file-url: ${{ steps.check_local_repos.outputs.repo_file }}
+          colcon-defaults: |
+            {
+              "build": {
+                "mixin": ["coverage-gcc", "coverage-pytest"]
+              },
+              "test": {
+                "mixin": ["coverage-pytest"]
+              }
+            }
+          colcon-mixin-repository: https://raw.githubusercontent.com/colcon/colcon-mixin-repository/master/index.yaml
+      - name: Test coverage tools
+        if: ${{ inputs.debug }}
+        run: |
+          pwd
+          which coverage || true
+          python3 -m coverage --version || true
+          coverage --version || true
+          source ~/.venv/bin/activate || true
+          python3 -m coverage --version || true
+          coverage --version || true
+          which coverage || true
+          ls ~/.venv/bin || true
+      - name: Search for .coverage files and convert them
+        continue-on-error: true
+        # TODO(anyone): remove this once codecov-action does not throw
+        # "coverage.py is not installed or can't be found."
+        # note: reports from pytest-cov are already in the correct format
+        run: |
+          find ros_ws -name total_coverage.info
+          find ros_ws -name .coverage
+          source ~/.venv/bin/activate
+          for coverage_file in $(find ros_ws -name .coverage); do
+            output_file="${coverage_file%/.coverage}/coverage.xml"
+            if [ ! -f "$output_file" ]; then
+              python3 -m coverage xml --data-file "$coverage_file" -o "$output_file"
+            fi
+          done
+        # python3 -m coverage combine --data-file ros_ws/coveragepy/.coverage $(find ros_ws -name .coverage)
+      - uses: codecov/codecov-action@v4
+        with:
+          fail_ci_if_error: true
+          flags: unittests
+          name: codecov-umbrella
+          token: ${{ secrets.CODECOV_TOKEN }}
+      - uses: actions/upload-artifact@v4.6.0
+        with:
+          name: colcon-logs-coverage-${{ inputs.ros_distro }}
+          path: ros_ws/log
