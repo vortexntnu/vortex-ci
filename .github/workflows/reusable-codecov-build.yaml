@@ -1,4 +1,4 @@
-name: 
+name:
 on:
     workflow_call:
         inputs:
@@ -24,10 +24,17 @@ on:
                 description: "URL to the vcs repositories file"
                 required: true
                 type: string
+            before_install_target_dependencies:
+              description: "Command to run before installing target dependencies"
+              required: false
+              default: ""
+              type: string
 
 jobs:
   codecov:
     runs-on: ${{ inputs.os_name }}
+    container:
+      image: ros:${{ inputs.ros2_distro }}-ros-base
     steps:
       - name: Setup ROS environment
         uses: ros-tooling/setup-ros@v0.7
@@ -39,7 +46,18 @@ jobs:
         uses: actions/checkout@v4
       - id: package_list_action
         uses: vortexntnu/vortex-ci/.github/actions/set-package-list@feat/codecov
-      
+
+      - name: Make script executable if provided
+        if: inputs.before_install_target_dependencies != ''
+        run: |
+          if [ -f "${{ inputs.before_install_target_dependencies }}" ]; then
+            echo "Making script executable: ${{ inputs.before_install_target_dependencies }}"
+            chmod +x "${{ inputs.before_install_target_dependencies }}"
+            ./${{ inputs.before_install_target_dependencies }}
+          else
+            echo "Provided path is not a file: ${{ inputs.before_install_target_dependencies }}"
+          fi
+
       - name: Build and test ROS 2 packages
         uses: ros-tooling/action-ros-ci@v0.3
         with:
@@ -57,7 +75,7 @@ jobs:
               }
             }
           colcon-mixin-repository: https://raw.githubusercontent.com/colcon/colcon-mixin-repository/master/index.yaml
-      
+
       - name: Check code coverage
         uses: codecov/codecov-action@v4
         with:
@@ -65,7 +83,7 @@ jobs:
           flags: unittests
           name: codecov-umbrella
           token: ${{ secrets.CODECOV_TOKEN }}
-      
+
       - name: Upload logs
         uses: actions/upload-artifact@v4.4.3
         with:
