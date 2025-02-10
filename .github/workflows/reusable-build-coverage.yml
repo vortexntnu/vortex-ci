@@ -36,7 +36,7 @@ jobs:
           echo "need_node=$(command -v node >/dev/null 2>&1 && echo 0 || echo 1)" >> $GITHUB_OUTPUT
           echo "need_ros2=$(if [ -d \"/opt/ros/${{ inputs.ros_distro }}\" ]; then echo 0; else echo 1; fi)" >> $GITHUB_OUTPUT
 
-      # needed for GitHub Actions, and only if a bare Ubuntu image is used
+      # Needed for GitHub Actions, and only if a bare Ubuntu image is used
       - uses: actions/setup-node@v4
         if: ${{ steps.prereq.outputs.need_node == '1' && !env.ACT }}
       - name: Install node
@@ -46,7 +46,7 @@ jobs:
           curl -sS https://webi.sh/node | sh
           echo ~/.local/opt/node/bin >> $GITHUB_PATH
 
-      # overwrite ros distro with testing
+      # Overwrite ROS distro with testing
       - uses: ros-tooling/setup-ros@0.7.9
         with:
           use-ros2-testing: true
@@ -97,10 +97,7 @@ jobs:
             }
           colcon-mixin-repository: https://raw.githubusercontent.com/colcon/colcon-mixin-repository/master/index.yaml
 
-      - name: List coverage files
-        run: find ros_ws -name ".coverage"
-
-      - name: Test coverage tools (post build)
+      - name: Test coverage tools (post-build)
         if: ${{ inputs.debug }}
         run: |
           pwd
@@ -113,24 +110,35 @@ jobs:
           which coverage || true
           ls ~/.venv/bin || true
 
-      - name: Combine coverage files and generate XML report
+      - name: Search for .coverage files and convert them
+        continue-on-error: true
         run: |
-          source ~/.venv/bin/activate
-          echo "Found .coverage files:"
+          echo "Listing total_coverage.info files:"
+          find ros_ws -name total_coverage.info
+          echo "Listing .coverage files:"
           find ros_ws -name ".coverage"
-          mkdir -p combined_cov
-          i=1
-          for file in $(find ros_ws -name ".coverage"); do
-            echo "Copying $file to combined_cov/.coverage.$i"
-            cp "$file" combined_cov/.coverage.$i
-            i=$((i+1))
+          source ~/.venv/bin/activate
+          for coverage_file in $(find ros_ws -name ".coverage"); do
+            output_file="${coverage_file%/.coverage}/coverage.xml"
+            echo "Processing $coverage_file -> $output_file"
+            if [ ! -f "$output_file" ]; then
+              python3 -m coverage xml --data-file "$coverage_file" -o "$output_file"
+            else
+              echo "$output_file already exists"
+            fi
           done
-          cd combined_cov
-          python3 -m coverage combine
-          python3 -m coverage xml -o coverage.xml
-          cp coverage.xml ../
-          cd ..
-          echo "Combined coverage report generated at: coverage.xml"
+
+      - name: List generated XML files
+        run: |
+          echo "Generated coverage.xml files:"
+          find ros_ws -name "coverage.xml"
+          echo "Contents of first coverage.xml (first 50 lines):"
+          first_xml=$(find ros_ws -name "coverage.xml" | head -n 1)
+          if [ -n "$first_xml" ]; then
+            head -n 50 "$first_xml"
+          else
+            echo "No coverage.xml found"
+          fi
 
       - uses: codecov/codecov-action@v4
         with:
@@ -138,9 +146,17 @@ jobs:
           flags: unittests
           name: codecov-umbrella
           token: ${{ secrets.CODECOV_TOKEN }}
-          file: coverage.xml
 
       - uses: actions/upload-artifact@v4.6.0
         with:
           name: colcon-logs-coverage-${{ inputs.ros_distro }}
           path: ros_ws/log
+
+      - name: Upload coverage debugging artifacts
+        if: ${{ inputs.debug }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-debug-artifacts
+          path: |
+            ros_ws/coveragepy/coverage.xml
+            ros_ws/build/velocity_controller_lqr/pytest_cov/test_velocity_controller_lqr/coverage.xml
