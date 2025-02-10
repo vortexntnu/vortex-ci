@@ -1,4 +1,4 @@
-name: Reusable Coverage Build
+name: Reusable Code Coverage
 # Reusable GitHub Actions workflow to run coverage on a repository
 on:
   workflow_call:
@@ -44,16 +44,6 @@ jobs:
           sudo apt update
           echo "need_node=$(command -v node >/dev/null 2>&1 && echo 0 || echo 1)" >> $GITHUB_OUTPUT
           echo "need_ros2=$(if [ -d \"/opt/ros/${{ inputs.ros_distro }}\" ]; then echo 0; else echo 1; fi)" >> $GITHUB_OUTPUT
-
-      # Needed for GitHub Actions, and only if a bare Ubuntu image is used
-      - uses: actions/setup-node@v4
-        if: ${{ steps.prereq.outputs.need_node == '1' && !env.ACT }}
-      - name: Install node
-        if: ${{ steps.prereq.outputs.need_node == '1' && env.ACT }}
-        run: |
-          sudo apt install -y curl
-          curl -sS https://webi.sh/node | sh
-          echo ~/.local/opt/node/bin >> $GITHUB_PATH
 
       # Overwrite ROS distro with testing
       - uses: ros-tooling/setup-ros@0.7.9
