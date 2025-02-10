@@ -1,0 +1,23 @@
+# --------------------------------------------
+# - config file
+# --------------------------------------------
+
+version: 0.1.0
+name: launch-config
+contact: Vortex - DevOps
+
+# nettwork
+# --------------------------------------------
+network:
+
+  # raspberry pi ip-adress
+  rpi: 10.0.1.99
+
+  # xavier ip-adress
+  xavier: 10.0.1.100
+
+# ROS
+# --------------------------------------------
+ros:
+  packages:
+    - name: sift

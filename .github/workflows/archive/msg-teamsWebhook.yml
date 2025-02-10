@@ -1,0 +1,72 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Send msg to Teams
+
+# Controls when the workflow will run
+# on:
+#   # Triggers the workflow on push or pull request events but only for the "main" branch
+#   push:
+#     branches: [ "main" ]
+#   pull_request:
+#     branches: [ "main" ]
+
+#   # Allows you to run this workflow manually from the Actions tab
+#   workflow_dispatch:
+on:
+  workflow_call:
+
+env:
+  active: True
+  webhook: https://studntnu.webhook.office.com/webhookb2/3ead07fd-2966-4a7e-ac5e-19f88fb5ff77@09a10672-822f-4467-a5ba-5bb375967c05/IncomingWebhook/3f5b74d5cd884cb9bb24bf53ec4da1e7/3011f2d9-c189-4900-87e9-3739018254f0
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "Send"
+  Send:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+
+      # Send msg to teams
+      - name: Send push msg to Teams
+        if: ${{ env.active == 'True' }}
+        run: |
+          curl --location --request POST $webhook \
+            --header 'Content-Type: application/json' \
+            --data-raw '{
+              "@type": "MessageCard",
+              "@context": "https://schema.org/extensions",
+              "summary": "${{ github.event.head_commit.message }}",
+              "sections": [{
+                "activityTitle": "${{ github.event.actor.display_login }} pushed new content to ${{ github.repository }}",
+                "activitySubtitle": "'"$(TZ=Europe/Oslo date +'%Y/%m/%d - %H:%M:%S %z')"'",
+                "activityImage": "https://github.com/amido/azure-vector-icons/raw/master/renders/git-deployment.png",
+                "facts": [{
+                  "name": "Latest commit message \r",
+                  "value": "${{ github.event.head_commit.message }}"
+                },{
+                  "name": "Changes \r",
+                  "value": "'"$(git diff-tree --no-commit-id --stat ${{ github.event.before }}^ ${{ github.event.after }})"'",
+                  "$data": ""
+                }],
+                "markdown": true
+              }],
+              "potentialAction": [{
+                "@type": "OpenUri",
+                "name": "Repo",
+                "targets": [{
+                  "os": "default",
+                  "uri": "${{ github.event.repository.url }}"
+                },{
+                "@type": "OpenUri",
+                "name": "Commit",
+                "targets": [{
+                  "os": "default",
+                  "uri": "${{ github.event.head_commit.url }}"
+                }]
+              }]
+            }'

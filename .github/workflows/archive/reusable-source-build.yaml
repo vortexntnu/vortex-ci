@@ -1,0 +1,87 @@
+name: Reusable Source Build
+# Reusable GitHub Actions workflow to build all ROS 2 packages from source
+on:
+  workflow_call:
+    inputs:
+      ros_distro:
+        description: "ROS Distribution (e.g., humble, jazzy)"
+        required: false
+        default: "humble"
+        type: string
+      os_name:
+        description: "Operating System to run the workflow on"
+        required: false
+        default: "ubuntu-22.04"
+        type: string
+      ref:
+        description: "Git branch or tag to checkout"
+        required: false
+        default: ${{ github.event.repository.default_branch }}
+        type: string
+      vcs_repo_file_url:
+        description: "URL to the vcs repositories file"
+        required: false
+        default: ""
+        type: string
+      skip_tests:
+        description: "Skip running tests"
+        required: false
+        default: false
+        type: boolean
+      gcc_version:
+        description: "GCC version to install"
+        required: false
+        default: "11" # Default GCC version commonly available on Ubuntu 22.04
+        type: string
+      dependency_script:
+        description: "Path to a local script for managing dependencies not supported by rosdep or for pinning package versions"
+        required: false
+        default: ""
+        type: string
+jobs:
+  build:
+    runs-on: ${{ inputs.os_name }}
+    container:
+      image: ros:${{ inputs.ros_distro }}-ros-base
+    env:
+      TEMPORARY_REPO_PATH: repo
+    steps:
+      - name: set gcc and g++ version
+        if: inputs.gcc_version != '11'
+        run: |
+          sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+          sudo apt-get update
+          sudo apt-get install gcc-${{ inputs.gcc_version }} g++-${{ inputs.gcc_version }} -y
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-${{ inputs.gcc_version }} 60
+          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-${{ inputs.gcc_version }} 60
+      - uses: ros-tooling/setup-ros@v0.7
+        with:
+          required-ros-distributions: ${{ inputs.ros_distro }}
+      - uses: actions/checkout@v4
+        if: inputs.dependency_script != ''
+        with:
+          ref: ${{ inputs.ref }}
+          path: ${{ env.TEMPORARY_REPO_PATH }}
+      - name: Execute dependency-script
+        if: inputs.dependency_script != ''
+        run: |
+          SCRIPT_NAME=${{ env.TEMPORARY_REPO_PATH }}/${{ inputs.dependency_script }}
+          echo "Checking for ${SCRIPT_NAME}..."
+          if [ -f "$SCRIPT_NAME" ]; then
+            echo "Executing ${SCRIPT_NAME}"
+            chmod +x "$SCRIPT_NAME"
+            ./"$SCRIPT_NAME"
+          else
+            echo "No ${SCRIPT_NAME} found, skipping."
+          fi
+      - uses: ros-tooling/action-ros-ci@v0.3
+        id: action_ros_ci_step
+        with:
+          target-ros2-distro: ${{ inputs.ros_distro }}
+          vcs-repo-file-url: ${{ inputs.vcs_repo_file_url }}
+          skip-tests: ${{ inputs.skip_tests }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: colcon-logs
+          path: ${{ steps.action_ros_ci_step.outputs.ros-workspace-directory-name }}/log
+        if: failure() # upload the logs only when the build fails
