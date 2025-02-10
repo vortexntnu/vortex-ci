@@ -10,6 +10,14 @@ on:
         description: 'Add debug output'
         type: boolean
         default: false
+      repos_file:
+        description: 'Optional .repos file or filename to use. If not provided, defaults to <repo_name>.<ros_distro>.repos'
+        required: false
+        type: string
+    secrets:
+      CODECOV_TOKEN:
+        description: 'Token for Codecov'
+        required: true
 
 jobs:
   coverage:
@@ -26,14 +34,12 @@ jobs:
           command -v sudo >/dev/null 2>&1 || (apt update && apt install -y sudo)
           sudo apt update
           echo "need_node=$(command -v node >/dev/null 2>&1 && echo 0 || echo 1)" >> $GITHUB_OUTPUT
-          echo "need_ros2=$(if [ -d "/opt/ros/${{ inputs.ros_distro }}" ]; then echo 0; else echo 1; fi)" >> $GITHUB_OUTPUT
+          echo "need_ros2=$(if [ -d \"/opt/ros/${{ inputs.ros_distro }}\" ]; then echo 0; else echo 1; fi)" >> $GITHUB_OUTPUT
 
-      # needed for github actions, and only if a bare ubuntu image is used
+      # needed for GitHub Actions, and only if a bare Ubuntu image is used
       - uses: actions/setup-node@v4
         if: ${{ steps.prereq.outputs.need_node == '1' && !env.ACT }}
       - name: Install node
-        # Consider switching to https://github.com/actions/setup-node when it works
-        # https://github.com/nektos/act/issues/973
         if: ${{ steps.prereq.outputs.need_node == '1' && env.ACT }}
         run: |
           sudo apt install -y curl
@@ -44,12 +50,8 @@ jobs:
       - uses: ros-tooling/setup-ros@0.7.9
         with:
           use-ros2-testing: true
+
       - name: Install coverage tools
-        # https://coverage.readthedocs.io/en/7.6.1/
-        # https://github.com/colcon/colcon-coveragepy-result
-        # https://github.com/colcon/colcon-lcov-result
-        # install coverage.py in a virtual environment and add it to the PATH
-        # in the end it has to be available in the PATH for codecov-action
         run: |
           set -v
           sudo apt-get install -qq lcov python3-colcon-lcov-result
@@ -58,6 +60,7 @@ jobs:
           source ~/.venv/bin/activate
           python3 -m pip install coverage --upgrade
           echo PATH=$PATH >> $GITHUB_ENV
+
       - name: Test coverage tools
         if: ${{ inputs.debug }}
         run: |
@@ -70,24 +73,39 @@ jobs:
           coverage --version || true
           which coverage || true
           ls ~/.venv/bin || true
+
       - uses: actions/checkout@v4
+
       - id: package_list_action
         uses: ros-controls/ros2_control_ci/.github/actions/set-package-list@master
+
       - name: Check for local repos file
         id: check_local_repos
         run: |
-          if [ -f ${{ steps.package_list_action.outputs.repo_name }}.${{ inputs.ros_distro }}.repos ]; then
-            echo "Local repos file found"
-            echo "repo_file=${{ steps.package_list_action.outputs.repo_name }}.${{ inputs.ros_distro }}.repos" >> $GITHUB_OUTPUT
+          if [ -n "${{ inputs.repos_file }}" ]; then
+            echo "Input repos file provided: '${{ inputs.repos_file }}'"
+            if [ -f "${{ inputs.repos_file }}" ]; then
+              echo "Specified repos file found"
+              echo "repo_file=${{ inputs.repos_file }}" >> $GITHUB_OUTPUT
+            else
+              echo "Specified repos file not found: '${{ inputs.repos_file }}'"
+              echo "repo_file=" >> $GITHUB_OUTPUT
+            fi
           else
-            echo "No local repos file found"
-            echo "repo_file=" >> $GITHUB_OUTPUT
-          fi
+            DEFAULT_FILE="${{ steps.package_list_action.outputs.repo_name }}.${{ inputs.ros_distro }}.repos"
+            if [ -f "$DEFAULT_FILE" ]; then
+              echo "Default repos file found: $DEFAULT_FILE"
+              echo "repo_file=$DEFAULT_FILE" >> $GITHUB_OUTPUT
+            else
+              echo "No local repos file found"
+              echo "repo_file=" >> $GITHUB_OUTPUT
+            fi
+
       - uses: ros-tooling/action-ros-ci@0.3.16
         with:
           target-ros2-distro: ${{ inputs.ros_distro }}
           import-token: ${{ secrets.GITHUB_TOKEN }}
-          # build all packages listed here
+          # Build all packages listed here
           package-name: ${{ steps.package_list_action.outputs.package_list }}
           vcs-repo-file-url: ${{ steps.check_local_repos.outputs.repo_file }}
           colcon-defaults: |
@@ -100,6 +118,7 @@ jobs:
               }
             }
           colcon-mixin-repository: https://raw.githubusercontent.com/colcon/colcon-mixin-repository/master/index.yaml
+
       - name: Test coverage tools
         if: ${{ inputs.debug }}
         run: |
@@ -112,11 +131,9 @@ jobs:
           coverage --version || true
           which coverage || true
           ls ~/.venv/bin || true
+
       - name: Search for .coverage files and convert them
         continue-on-error: true
-        # TODO(anyone): remove this once codecov-action does not throw
-        # "coverage.py is not installed or can't be found."
-        # note: reports from pytest-cov are already in the correct format
         run: |
           find ros_ws -name total_coverage.info
           find ros_ws -name .coverage
@@ -127,13 +144,14 @@ jobs:
               python3 -m coverage xml --data-file "$coverage_file" -o "$output_file"
             fi
           done
-        # python3 -m coverage combine --data-file ros_ws/coveragepy/.coverage $(find ros_ws -name .coverage)
+
       - uses: codecov/codecov-action@v4
         with:
           fail_ci_if_error: true
           flags: unittests
           name: codecov-umbrella
           token: ${{ secrets.CODECOV_TOKEN }}
+
       - uses: actions/upload-artifact@v4.6.0
         with:
           name: colcon-logs-coverage-${{ inputs.ros_distro }}
