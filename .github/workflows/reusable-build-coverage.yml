@@ -1,18 +1,26 @@
 name: Reusable Coverage Build
+# Reusable GitHub Actions workflow to run coverage on a repository
 on:
   workflow_call:
     inputs:
+      os:
+        description: "Operating System to run the workflow on"
+        required: false
+        default: "ubuntu-22.04"
+        type: string
       ros_distro:
         description: 'ROS2 distribution name'
-        required: true
+        required: false
+        default: "humble"
         type: string
       debug:
         description: 'Add debug output'
-        type: boolean
         default: false
-      repos_file:
-        description: 'Optional .repos file or filename to use. If not provided, defaults to <repo_name>.<ros_distro>.repos'
+        type: boolean
+      vcs-repo-file-url:
+        description: 'Optional .repos file'
         required: false
+        default: "*.repos"
         type: string
     secrets:
       CODECOV_TOKEN:
@@ -21,9 +29,10 @@ on:
 
 jobs:
   coverage:
-    name: coverage build ${{ inputs.ros_distro }}
-    runs-on: ubuntu-latest
-    container: ghcr.io/sloretz/ros:${{ inputs.ros_distro }}-ros-base
+    name: coverage build
+    runs-on: ${{ inputs.os }}
+    container:
+      image: ros:${{ inputs.ros_distro }}-ros-base
     defaults:
       run:
         shell: bash
@@ -85,7 +94,7 @@ jobs:
           import-token: ${{ secrets.GITHUB_TOKEN }}
           # Build all packages listed here
           package-name: ${{ steps.package_list_action.outputs.package_list }}
-          vcs-repo-file-url: ${{ inputs.repos_file }}
+          vcs-repo-file-url: ${{ inputs.vcs-repo-file-url }}
           colcon-defaults: |
             {
               "build": {
@@ -128,18 +137,6 @@ jobs:
             fi
           done
 
-      - name: List generated XML files
-        run: |
-          echo "Generated coverage.xml files:"
-          find ros_ws -name "coverage.xml"
-          echo "Contents of first coverage.xml (first 50 lines):"
-          first_xml=$(find ros_ws -name "coverage.xml" | head -n 1)
-          if [ -n "$first_xml" ]; then
-            head -n 50 "$first_xml"
-          else
-            echo "No coverage.xml found"
-          fi
-
       - uses: codecov/codecov-action@v4
         with:
           fail_ci_if_error: true
@@ -151,12 +148,3 @@ jobs:
         with:
           name: colcon-logs-coverage-${{ inputs.ros_distro }}
           path: ros_ws/log
-
-      - name: Upload coverage debugging artifacts
-        if: ${{ inputs.debug }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-debug-artifacts
-          path: |
-            ros_ws/coveragepy/coverage.xml
-            ros_ws/build/velocity_controller_lqr/pytest_cov/test_velocity_controller_lqr/coverage.xml
