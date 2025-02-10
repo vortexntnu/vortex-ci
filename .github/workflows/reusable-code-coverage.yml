@@ -1,5 +1,5 @@
-name: Reusable Code Coverage
-
+name: Reusable Coverage Build
+# Reusable GitHub Actions workflow to run coverage on a repository
 on:
   workflow_call:
     inputs:
@@ -37,10 +37,18 @@ jobs:
       run:
         shell: bash
     steps:
+      - name: "Determine prerequisites"
+        id: prereq
+        run: |
+          command -v sudo >/dev/null 2>&1 || (apt update && apt install -y sudo)
+          sudo apt update
+          echo "need_node=$(command -v node >/dev/null 2>&1 && echo 0 || echo 1)" >> $GITHUB_OUTPUT
+          echo "need_ros2=$(if [ -d \"/opt/ros/${{ inputs.ros_distro }}\" ]; then echo 0; else echo 1; fi)" >> $GITHUB_OUTPUT
+
+      # Overwrite ROS distro with testing
       - uses: ros-tooling/setup-ros@0.7.9
         with:
           use-ros2-testing: true
-          required-ros-distributions: ${{ inputs.ros_distro }}
 
       - name: Install coverage tools
         run: |
