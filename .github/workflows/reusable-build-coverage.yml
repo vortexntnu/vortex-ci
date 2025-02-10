@@ -96,9 +96,11 @@ jobs:
               }
             }
           colcon-mixin-repository: https://raw.githubusercontent.com/colcon/colcon-mixin-repository/master/index.yaml
+
       - name: List coverage files
-        run: find ros_ws -name .coverage
-      - name: Test coverage tools
+        run: find ros_ws -name ".coverage"
+
+      - name: Test coverage tools (post build)
         if: ${{ inputs.debug }}
         run: |
           pwd
@@ -111,18 +113,24 @@ jobs:
           which coverage || true
           ls ~/.venv/bin || true
 
-      - name: Search for .coverage files and convert them
-        continue-on-error: true
+      - name: Combine coverage files and generate XML report
         run: |
-          find ros_ws -name total_coverage.info
-          find ros_ws -name .coverage
           source ~/.venv/bin/activate
-          for coverage_file in $(find ros_ws -name .coverage); do
-            output_file="${coverage_file%/.coverage}/coverage.xml"
-            if [ ! -f "$output_file" ]; then
-              python3 -m coverage xml --data-file "$coverage_file" -o "$output_file"
-            fi
+          echo "Found .coverage files:"
+          find ros_ws -name ".coverage"
+          mkdir -p combined_cov
+          i=1
+          for file in $(find ros_ws -name ".coverage"); do
+            echo "Copying $file to combined_cov/.coverage.$i"
+            cp "$file" combined_cov/.coverage.$i
+            i=$((i+1))
           done
+          cd combined_cov
+          python3 -m coverage combine
+          python3 -m coverage xml -o coverage.xml
+          cp coverage.xml ../
+          cd ..
+          echo "Combined coverage report generated at: coverage.xml"
 
       - uses: codecov/codecov-action@v4
         with:
@@ -130,6 +138,7 @@ jobs:
           flags: unittests
           name: codecov-umbrella
           token: ${{ secrets.CODECOV_TOKEN }}
+          file: coverage.xml
 
       - uses: actions/upload-artifact@v4.6.0
         with:
