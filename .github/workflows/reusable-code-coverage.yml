@@ -1,5 +1,4 @@
 name: Reusable Code Coverage
-
 on:
   workflow_call:
     inputs:
@@ -27,7 +26,6 @@ on:
       CODECOV_TOKEN:
         description: 'Token for Codecov'
         required: true
-
 jobs:
   coverage:
     name: coverage build
@@ -42,7 +40,6 @@ jobs:
         with:
           use-ros2-testing: true
           required-ros-distributions: ${{ inputs.ros_distro }}
-
       - name: Install coverage tools
         run: |
           set -v
@@ -52,9 +49,7 @@ jobs:
           source ~/.venv/bin/activate
           python3 -m pip install coverage --upgrade
           echo PATH=$PATH >> $GITHUB_ENV
-
       - uses: actions/checkout@v4
-
       - name: Execute script if provided
         if: inputs.before_install_target_dependencies != ''
         run: |
@@ -67,7 +62,6 @@ jobs:
           fi
       - id: package_list_action
         uses: ros-controls/ros2_control_ci/.github/actions/set-package-list@master
-
       - uses: ros-tooling/action-ros-ci@0.3.16
         with:
           target-ros2-distro: ${{ inputs.ros_distro }}
@@ -85,7 +79,6 @@ jobs:
               }
             }
           colcon-mixin-repository: https://raw.githubusercontent.com/colcon/colcon-mixin-repository/master/index.yaml
-
       - name: Search for .coverage files and convert them
         continue-on-error: true
         run: |
@@ -103,14 +96,12 @@ jobs:
               echo "$output_file already exists"
             fi
           done
-
       - uses: codecov/codecov-action@v4
         with:
           fail_ci_if_error: true
           flags: unittests
           name: codecov-umbrella
           token: ${{ secrets.CODECOV_TOKEN }}
-
       - uses: actions/upload-artifact@v4.6.0
         with:
           name: colcon-logs-coverage-${{ inputs.ros_distro }}

@@ -1,5 +1,4 @@
 name: Reusable Semantic Release
-
 on:
   workflow_call:
     inputs:

@@ -14,8 +14,6 @@ outputs:
   repo_name:
     description: "The name of the repo, last part of github.repository"
     value: ${{ steps.split_repo.outputs.repo_name }}
-
-
 runs:
   using: 'composite'
   steps:
