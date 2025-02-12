@@ -27,6 +27,12 @@ repos:
       - id: trailing-whitespace
         exclude_types: [rst]
       - id: fix-byte-order-marker
+  # Format YAML files
+  - repo: https://github.com/google/yamlfmt
+    rev: v0.16.0
+    hooks:
+      - id: yamlfmt
+        exclude: "^(.github/workflows/archive/.*|scripts/.*)"
   # Linting for GitHub Actions workflows
   - repo: https://github.com/rhysd/actionlint
     rev: v1.7.7
@@ -39,12 +45,6 @@ repos:
     hooks:
       - id: codespell
         args: ['--write-changes', '--ignore-words-list=theses,fom']
-  # Format YAML files
-  - repo: https://github.com/google/yamlfmt
-    rev: v0.16.0
-    hooks:
-      - id: yamlfmt
-        exclude: "^(.github/workflows/archive/.*|scripts/.*)"
 # For more information on pre-commit.ci and its configuration, visit:
 # https://pre-commit.ci/
 ci:
