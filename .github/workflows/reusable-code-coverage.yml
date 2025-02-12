@@ -1,5 +1,5 @@
 name: Reusable Coverage Build
-# Reusable GitHub Actions workflow to run coverage on a repository
+
 on:
   workflow_call:
     inputs:
@@ -13,10 +13,6 @@ on:
         required: false
         default: "humble"
         type: string
-      debug:
-        description: 'Add debug output'
-        default: false
-        type: boolean
       vcs-repo-file-url:
         description: 'Optional .repos file'
         required: false
@@ -42,7 +38,6 @@ jobs:
       run:
         shell: bash
     steps:
-      # Overwrite ROS distro with testing
       - uses: ros-tooling/setup-ros@0.7.9
         with:
           use-ros2-testing: true
