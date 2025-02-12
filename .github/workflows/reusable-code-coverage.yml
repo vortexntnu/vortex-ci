@@ -1,4 +1,4 @@
-name: Reusable Coverage Build
+name: Reusable Code Coverage
 
 on:
   workflow_call:
