@@ -62,6 +62,7 @@ This reusable workflow is designed to run code coverage analysis on a ROS-based 
 - ```ros_distro```: The ROS2 distribution name. (default: "humble").
 - ```debug```: Enable debug output for troubleshooting. (default: false).
 - ```vcs-repo-file-url```: URL or path to a .repos file containing the external repositories required for the build.
+- ```before_install_target_dependencies```: Command or path to script to run before installing dependencies. Used for installing dependencies that are not supported by rosdep, allowing custom scripts or commands to handle those cases before the main dependency installation process.
 #### Secrets:
 - ```CODECOV_TOKEN```: *(Required)* - Token for uploading coverage reports to Codecov. ([Guide](https://docs.codecov.com/docs/adding-the-codecov-token))
 #### Additional setup:
