@@ -56,7 +56,7 @@ jobs:
 ```
 
 ## reusable-code-coverage.yml
-This reusable workflow is designed to run code coverage analysis on a ROS-based repository. It sets up the necessary environment, installs coverage tools, builds the project, and uploads the coverage report to Codecov.
+This reusable workflow is designed to run code coverage analysis on a ROS-based repository. It sets up the necessary environment, installs coverage tools, builds the project, and uploads the coverage report to [Codecov](https://app.codecov.io/github/vortexntnu).
 #### Inputs:
 - ```os```: Operating System for running the workflow (default: "ubuntu-22.04").
 - ```ros_distro```: The ROS2 distribution name. (default: "humble").
@@ -123,6 +123,7 @@ This file sets up the [pre-commit](https://pre-commit.com/) tool to automaticall
 - .clang-format: Configuration for formatting C/C++ code with [clang-format](https://clang.llvm.org/docs/ClangFormat.html).
 (See an example in [.clang-format](https://github.com/vortexntnu/vortex-ci/blob/main/.clang-format))
 - ***The ```pre-commit-config.yaml``` file must be placed in the root of the repository***.
+- Sometimes the spellchecker confuses words with abbreviations, causing it to incorrectly assert the there are grammatical errors. Words to ignore can be added in the config file.
 ### Here is an example configuration file with General, Python, C/C++, and Spellcheck Hooks:
 ```yaml
 # To use:
