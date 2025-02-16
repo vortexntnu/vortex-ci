@@ -61,7 +61,7 @@ jobs:
             echo "Provided path is not a file: ${{ inputs.before_install_target_dependencies }}"
           fi
       - id: package_list_action
-        uses: ros-controls/ros2_control_ci/.github/actions/set-package-list@master
+        uses: vortexntnu/vortex-ci/.github/actions/set-package-list@feat/codecov
       - uses: ros-tooling/action-ros-ci@0.3.16
         with:
           target-ros2-distro: ${{ inputs.ros_distro }}
