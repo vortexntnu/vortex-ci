@@ -96,7 +96,7 @@ jobs:
               echo "$output_file already exists"
             fi
           done
-      - uses: codecov/codecov-action@v4
+      - uses: codecov/codecov-action@v5
         with:
           fail_ci_if_error: true
           flags: unittests
