@@ -1,5 +1,4 @@
 name: Reusable Industrial CI
-# Reusable GitHub Actions workflow to run Industrial CI on a repository
 on:
   workflow_call:
     inputs:
@@ -19,9 +18,9 @@ on:
         default: '["main"]'
         type: string
       upstream_workspace:
-        description: "URL to the upstream workspace file"
+        description: "URL or path to the upstream workspace file"
         required: false
-        default: ""
+        default: "*.repos"
         type: string
       skip_tests:
         description: "Skip running tests"

@@ -1,5 +1,4 @@
 name: Reusable Semantic Release
-# Reusable GitHub Actions workflow to run semantic-release on a repository
 on:
   workflow_call:
     inputs:

@@ -1,14 +1,14 @@
 # Workflows
 
 ## reusable-industrial-ci.yml
-This reusable workflow uses [industrial-ci](https://github.com/ros-industrial/industrial_ci) to verify that your ROS packages build and install correctly, and runs unit/system tests if defined. You can pass in the following inputs:
+This reusable workflow uses [industrial-ci](https://github.com/ros-industrial/industrial_ci) to verify that your ROS packages build and install correctly, and runs unit/system tests if defined.
+#### Inputs:
 - ```os```: Operating System for running the workflow (default: "ubuntu-22.04").
 - ```ros_distro```: JSON array of ROS distributions (default: '["humble"]').
 - ```ros_repo```: JSON array of ROS repositories (default: '["main"]').
 - ```upstream_workspace```: URL or path to a .repos file containing the external repositories required for the build.
 - ```skip_tests```: Boolean to skip running tests.
 - ```before_install_target_dependencies```: Command or path to script to run before installing dependencies. Used for installing dependencies that are not supported by rosdep, allowing custom scripts or commands to handle those cases before the main dependency installation process.
-
 - ```additional_debs```: Additional Debian packages to install.
 
 #### Additional setup:
@@ -19,7 +19,7 @@ repositories:
     type: git
     url: https://github.com/vortexntnu/vortex-msgs.git
 ```
-### Here is an example of how to use the reusable workflow in your repository:
+### Here is an example of how to use the workflow in a repository:
 ```yml
 name: Industrial CI
 
@@ -34,13 +34,96 @@ jobs:
     uses: vortexntnu/vortex-ci/.github/workflows/reusable-industrial-ci.yml@main
 ```
 
+## reusable-semrel.yml
+This reusable workflow uses [semantic-release](https://github.com/cycjimmy/semantic-release-action/tree/v4.1.1/) to automate semantic versioning. It generates version numbers based on your commit messages, creates Git tags, and publishes release notes. It uses the [.releaserc](/.releaserc) file in this repository to configure the release process. You can pass in the following inputs:
+- ```os```: Operating System for running the workflow (default: "ubuntu-latest").
+- ```central_repo_name```: Repo name containing this workflow (default: "vortexntnu/vortex-ci").
+- ```central_repo_ref```: Branch or tag to checkout in the central repo (default: "main").
+- ```default_branch```: Default branch of the repository (default: ${{ github.event.repository.default_branch }}).
+- ```releaserc```: Path to a custom .releaserc file in your repository (by default, the workflow uses the one provided in this repo). - ***(TODO)***
+#### Additional setup: N/A
+### Here is an example of how to use the workflow in a repository:
+```yml
+name: Semantic Release
+
+on:
+  push:
+    branches:
+      - main
+jobs:
+  call_reusable_workflow:
+    uses: vortexntnu/vortex-ci/.github/workflows/reusable-semrel.yml@main
+```
+
+## reusable-code-coverage.yml
+This reusable workflow is designed to run code coverage analysis on a ROS-based repository. It sets up the necessary environment, installs coverage tools, builds the project, and uploads the coverage report to [Codecov](https://app.codecov.io/github/vortexntnu).
+#### Inputs:
+- ```os```: Operating System for running the workflow (default: "ubuntu-22.04").
+- ```ros_distro```: The ROS2 distribution name. (default: "humble").
+- ```debug```: Enable debug output for troubleshooting. (default: false).
+- ```vcs-repo-file-url```: URL or path to a .repos file containing the external repositories required for the build.
+- ```before_install_target_dependencies```: Command or path to script to run before installing dependencies. Used for installing dependencies that are not supported by rosdep, allowing custom scripts or commands to handle those cases before the main dependency installation process.
+#### Secrets:
+- ```CODECOV_TOKEN```: *(Required)* - Token for uploading coverage reports to Codecov. ([Guide](https://docs.codecov.com/docs/adding-the-codecov-token))
+#### Additional setup:
+- **codecov.yml**: Place this Codecov configuration file at the root of your repository. ([Guide](https://docs.codecov.com/docs/codecov-yaml)). ***NOTE:*** You must hardcode the paths to your packages; Codecov primarily detects C++ packages for coverage reporting. Also you need to update the repository name in the ```fixes``` section to match your repository:
+```yml
+fixes:
+  - "ros_ws/src/INSERT-YOUR-REPOSITORY-NAME/::"
+```
+Example of a codecov.yml file:
+```yml
+coverage:
+  precision: 2
+  round: down
+  status:
+    project:
+      default:
+        informational: true
+        flags:
+          - unittests
+    patch: off
+fixes:
+  - "ros_ws/src/vortex_auv/::"
+comment:
+  layout: "diff, flags, files"
+  behavior: default
+flags:
+  unittests:
+    paths:
+      - control/dp_adapt_backs_controller
+      - control/pid_controller_dp
+      - control/pid_controller_dp_euler
+      - control/velocity_controller_lqr
+      - guidance/reference_filter_dp
+      - motion/thrust_allocator_auv
+      - motion/thruster_interface_auv
+```
+- **.repos file**: See additional setup in [reusable-industrial-ci.yml](#reusable-industrial-ciyml).
+
+### Here is an example of how to use the workflow in your repository:
+```yml
+name: Code Coverage
+
+on:
+  push:
+
+jobs:
+  coverage_build:
+    uses: vortexntnu/vortex-ci/.github/workflows/reusable-build-coverage.yml@main
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+```
+
+# Scripts
 ## pre-commit-config.yaml
-This file sets up the [pre-commit](https://pre-commit.com/) tool to automatically check and format code before every commit, ensuring consistent code quality. You can also integrate [pre-commit-ci](https://pre-commit.ci/) to run these checks on every push to a pull request and automatically fix issues.
+This file sets up the [pre-commit](https://pre-commit.com/) tool to automatically check and format code before every commit, ensuring consistent code quality. You can also integrate [pre-commit-ci](https://pre-commit.ci/) to run these checks on every push to a pull request and automatically fix issues. To configure this you need to go [here](https://github.com/organizations/vortexntnu/settings/installations) and click on ```pre-commit ci``` and add the repository you want to use it on. **NOTE**: pre-commit-ci is only available for public repositories.
 #### Additional setup:
 - ruff.toml: Configuration for the Python linter [ruff](https://docs.astral.sh/ruff/). (See an example in [ruff.toml](https://github.com/vortexntnu/vortex-ci/blob/main/ruff.toml))
 - .clang-format: Configuration for formatting C/C++ code with [clang-format](https://clang.llvm.org/docs/ClangFormat.html).
 (See an example in [.clang-format](https://github.com/vortexntnu/vortex-ci/blob/main/.clang-format))
 - ***The ```pre-commit-config.yaml``` file must be placed in the root of the repository***.
+- Sometimes the spellchecker confuses words with abbreviations, causing it to incorrectly assert the there are grammatical errors. Words to ignore can be added in the config file.
 ### Here is an example configuration file with General, Python, C/C++, and Spellcheck Hooks:
 ```yaml
 # To use:
@@ -131,45 +214,3 @@ repos:
 ci:
     autoupdate_schedule: quarterly
 ```
-
-## reusable-semrel.yml
-This reusable workflow uses [semantic-release](https://github.com/cycjimmy/semantic-release-action/tree/v4.1.1/) to automate semantic versioning. It generates version numbers based on your commit messages, creates Git tags, and publishes release notes. It uses the [.releaserc](/.releaserc) file in this repository to configure the release process. You can pass in the following inputs:
-- ```os```: Operating System for running the workflow (default: "ubuntu-latest").
-- ```central_repo_name```: Repo name containing this workflow (default: "vortexntnu/vortex-ci").
-- ```central_repo_ref```: Branch or tag to checkout in the central repo (default: "main").
-- ```default_branch```: Default branch of the repository (default: ${{ github.event.repository.default_branch }}).
-- ```releaserc```: Path to a custom .releaserc file in your repository (by default, the workflow uses the one provided in this repo). - ***(TODO)***
-#### Additional setup: N/A
-### Here is an example of how to use the reusable workflow in your repository:
-```yml
-name: Semantic Release
-
-on:
-  push:
-    branches:
-      - main
-jobs:
-  call_reusable_workflow:
-    uses: vortexntnu/vortex-ci/.github/workflows/reusable-semrel.yml@main
-```
-
-## Formatters - DEPRECATED
-### format-check-cpp.yml
-- Checks format of C and C++ files in the repo
-- Workflow fails if format is wrong
-- Uses Clang formatter
-
-### format-cpp.yml
-- Formats C and C++ files in the repo
-- Changes the files and pushes a new commit
-- Uses Clang formatter
-
-### format-check-python.yml
-- Checks format of python files in the repo
-- Workflow fails if format is wrong
-- Uses black-format-check
-
-### format-python.yml
-- Formats python files in the repo
-- Changes the files and pushes a new commit
-- Uses black-format-check

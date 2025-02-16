@@ -1,0 +1,108 @@
+name: Reusable Code Coverage
+on:
+  workflow_call:
+    inputs:
+      os:
+        description: "Operating System to run the workflow on"
+        required: false
+        default: "ubuntu-22.04"
+        type: string
+      ros_distro:
+        description: 'ROS2 distribution name'
+        required: false
+        default: "humble"
+        type: string
+      vcs-repo-file-url:
+        description: 'Optional .repos file'
+        required: false
+        default: "*.repos"
+        type: string
+      before_install_target_dependencies:
+        description: "Command or script to run before installing target dependencies"
+        required: false
+        default: ""
+        type: string
+    secrets:
+      CODECOV_TOKEN:
+        description: 'Token for Codecov'
+        required: true
+jobs:
+  coverage:
+    name: coverage build
+    runs-on: ${{ inputs.os }}
+    container:
+      image: ros:${{ inputs.ros_distro }}-ros-base
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: ros-tooling/setup-ros@0.7.9
+        with:
+          use-ros2-testing: true
+          required-ros-distributions: ${{ inputs.ros_distro }}
+      - name: Install coverage tools
+        run: |
+          set -v
+          sudo apt-get install -qq lcov python3-colcon-lcov-result
+          sudo apt-get install -qq python3-colcon-coveragepy-result python3-pytest-cov python3-pip python3-venv
+          python3 -m venv ~/.venv --system-site-packages
+          source ~/.venv/bin/activate
+          python3 -m pip install coverage --upgrade
+          echo PATH=$PATH >> $GITHUB_ENV
+      - uses: actions/checkout@v4
+      - name: Execute script if provided
+        if: inputs.before_install_target_dependencies != ''
+        run: |
+          if [ -f "${{ inputs.before_install_target_dependencies }}" ]; then
+            echo "Making script executable: ${{ inputs.before_install_target_dependencies }}"
+            chmod +x "${{ inputs.before_install_target_dependencies }}"
+            ./${{ inputs.before_install_target_dependencies }}
+          else
+            echo "Provided path is not a file: ${{ inputs.before_install_target_dependencies }}"
+          fi
+      - id: package_list_action
+        uses: vortexntnu/vortex-ci/.github/actions/set-package-list@feat/codecov
+      - uses: ros-tooling/action-ros-ci@0.3.16
+        with:
+          target-ros2-distro: ${{ inputs.ros_distro }}
+          import-token: ${{ secrets.GITHUB_TOKEN }}
+          # Build all packages listed here
+          package-name: ${{ steps.package_list_action.outputs.package_list }}
+          vcs-repo-file-url: ${{ inputs.vcs-repo-file-url }}
+          colcon-defaults: |
+            {
+              "build": {
+                "mixin": ["coverage-gcc", "coverage-pytest"]
+              },
+              "test": {
+                "mixin": ["coverage-pytest"]
+              }
+            }
+          colcon-mixin-repository: https://raw.githubusercontent.com/colcon/colcon-mixin-repository/master/index.yaml
+      - name: Search for .coverage files and convert them
+        continue-on-error: true
+        run: |
+          echo "Listing total_coverage.info files:"
+          find ros_ws -name total_coverage.info
+          echo "Listing .coverage files:"
+          find ros_ws -name ".coverage"
+          source ~/.venv/bin/activate
+          for coverage_file in $(find ros_ws -name ".coverage"); do
+            output_file="${coverage_file%/.coverage}/coverage.xml"
+            echo "Processing $coverage_file -> $output_file"
+            if [ ! -f "$output_file" ]; then
+              python3 -m coverage xml --data-file "$coverage_file" -o "$output_file"
+            else
+              echo "$output_file already exists"
+            fi
+          done
+      - uses: codecov/codecov-action@v4
+        with:
+          fail_ci_if_error: true
+          flags: unittests
+          name: codecov-umbrella
+          token: ${{ secrets.CODECOV_TOKEN }}
+      - uses: actions/upload-artifact@v4.6.0
+        with:
+          name: colcon-logs-coverage-${{ inputs.ros_distro }}
+          path: ros_ws/log
