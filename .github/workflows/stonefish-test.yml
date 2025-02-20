@@ -27,6 +27,7 @@ jobs:
           git clone https://github.com/vortexntnu/vortex-auv.git
           git clone https://github.com/patrykcieslak/stonefish_ros2.git
           git clone https://github.com/vortexntnu/vortex-stonefish-sim.git
+          git clone https://github.com/vortexntnu/vortex-utils.git
       - name: Install dependencies
         run: |
           cd ~/ros2_ws
@@ -50,8 +51,8 @@ jobs:
           . /opt/ros/humble/setup.sh
           . ~/ros2_ws/install/setup.bash
           export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
-          chmod +x ${{ env.TEMPORARY_REPO_PATH }}/scripts/orca/simulator_test.sh
-          ./${{ env.TEMPORARY_REPO_PATH }}/scripts/orca/simulator_test.sh
+          chmod +x repo/scripts/orca/simulator_test.sh
+          ./repo/scripts/orca/simulator_test.sh
       - uses: actions/upload-artifact@v4
         with:
           name: colcon-logs
