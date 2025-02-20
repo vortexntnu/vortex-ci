@@ -43,7 +43,7 @@ jobs:
           . /opt/ros/humble/setup.sh  # Source ROS 2
           colcon build --packages-select stonefish_ros2  # Build Stonefish ROS package
           . install/setup.bash  # Source the workspace
-          colcon build --packages-exclude stonefish_ros2  # Build remaining packages
+          colcon build --packages-ignore stonefish_ros2  # Build remaining packages
         
       - name: Execute scripts from local repository
         run: |
