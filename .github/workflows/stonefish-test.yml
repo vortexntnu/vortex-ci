@@ -32,6 +32,10 @@ jobs:
           cd ~/ros2_ws
           rosdep update
           rosdep install --from-paths src --ignore-src -r -y
+      - name: Install dependencies
+        run: |
+          chmod +x ${{ env.TEMPORARY_REPO_PATH }}/scripts/orca/requirements.sh
+          ./${{ env.TEMPORARY_REPO_PATH }}/scripts/orca/requirements.sh
       - name: Build workspace
         run: |
           cd ~/ros2_ws
