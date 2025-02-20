@@ -37,6 +37,7 @@ jobs:
           chmod +x ${{ env.TEMPORARY_REPO_PATH }}/scripts/orca/requirements.sh
           ./${{ env.TEMPORARY_REPO_PATH }}/scripts/orca/requirements.sh
       - name: Build workspace
+        shell: bash
         run: |
           cd ~/ros2_ws
           . /opt/ros/humble/setup.sh  # Source ROS 2
