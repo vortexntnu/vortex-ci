@@ -36,6 +36,7 @@ jobs:
         run: |
           cd ~/ros2_ws
           . /opt/ros/humble/setup.sh
+          colcon build --packages-select stonefish_ros2
           colcon build --symlink-install
       - name: Execute scripts from local repository
         run: |
