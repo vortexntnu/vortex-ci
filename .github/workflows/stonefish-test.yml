@@ -1,0 +1,40 @@
+name: Source Build on Push
+on:
+  push:
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    container:
+      image: ros:humble-ros-base
+    env:
+      TEMPORARY_REPO_PATH: repo
+    steps:
+      - uses: ros-tooling/setup-ros@v0.7
+        with:
+          required-ros-distributions: humble
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+          path: ${{ env.TEMPORARY_REPO_PATH }}
+      - name: Execute dependency script if exists
+        run: |
+          SCRIPT_NAME=${{ env.TEMPORARY_REPO_PATH }}/scripts/orca/requirements.sh
+          echo "Checking for ${SCRIPT_NAME}..."
+          chmod +x "$SCRIPT_NAME"
+          ./$SCRIPT_NAME
+      - uses: ros-tooling/action-ros-ci@v0.3
+        id: action_ros_ci_step
+        with:
+          target-ros2-distro: humble
+          vcs-repo-file-url: ${{ env.TEMPORARY_REPO_PATH }}/scripts/orca/dependencies.repos
+          skip-tests: true
+      - name: Execute tests
+        run: |
+          cd ${{ env.TEMPORARY_REPO_PATH }}/scripts/orca
+          chmod +x ${{ env.TEMPORARY_REPO_PATH }}/scripts/orca/simulator_test.sh
+          ./${{ env.TEMPORARY_REPO_PATH }}/scripts/orca/simulator_test.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: colcon-logs
+          path: ${{ steps.action_ros_ci_step.outputs.ros-workspace-directory-name }}/log
+        if: failure() # upload the logs only when the build fails
