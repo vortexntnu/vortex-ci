@@ -44,14 +44,10 @@ jobs:
           colcon build --packages-select stonefish_ros2  # Build Stonefish ROS package
           . install/setup.bash  # Source the workspace
           colcon build --packages-ignore stonefish_ros2  # Build remaining packages
-        
       - name: Execute scripts from local repository
         run: |
-          chmod +x ${{ env.TEMPORARY_REPO_PATH }}/scripts/orca/*.sh
-          for script in ${{ env.TEMPORARY_REPO_PATH }}/scripts/orca/*.sh; do
-            echo "Executing $script"
-            ./$script
-          done
+          chmod +x ${{ env.TEMPORARY_REPO_PATH }}/scripts/orca/simulator_test.sh
+          ./${{ env.TEMPORARY_REPO_PATH }}/scripts/orca/simulator_test.sh
       - uses: actions/upload-artifact@v4
         with:
           name: colcon-logs
