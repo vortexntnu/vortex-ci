@@ -42,7 +42,7 @@ jobs:
           . /opt/ros/humble/setup.sh
           colcon build --packages-select stonefish_ros2
           source install/setup.bash
-          colcon build --symlink-install
+          colcon build
       - name: Execute scripts from local repository
         run: |
           chmod +x ${{ env.TEMPORARY_REPO_PATH }}/scripts/orca/*.sh
