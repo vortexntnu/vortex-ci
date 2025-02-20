@@ -1,4 +1,4 @@
-name: Source Build on Push
+name: Build ROS 2 Package
 on:
   push:
 jobs:
@@ -9,34 +9,43 @@ jobs:
     env:
       TEMPORARY_REPO_PATH: repo
     steps:
-      - uses: ros-tooling/setup-ros@v0.7
-        with:
-          required-ros-distributions: humble
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.ref }}
           path: ${{ env.TEMPORARY_REPO_PATH }}
-      - name: Execute dependency script if exists
-        run: |
-          SCRIPT_NAME=${{ env.TEMPORARY_REPO_PATH }}/scripts/orca/requirements.sh
-          echo "Checking for ${SCRIPT_NAME}..."
-          chmod +x "$SCRIPT_NAME"
-          ./$SCRIPT_NAME
-      - name: Build stonefish_ros2 first
-        uses: ros-tooling/action-ros-ci@v0.3
+      - name: Setup ROS 2
+        uses: ros-tooling/setup-ros@v0.7
         with:
-          target-ros2-distro: humble
-          vcs-repo-file-url: ${{ env.TEMPORARY_REPO_PATH }}/scripts/orca/dependencies.repos
-          package-name: stonefish_ros2
-          skip-tests: true
-      - name: Build remaining packages
-        uses: ros-tooling/action-ros-ci@v0.3
-        with:
-          target-ros2-distro: humble
-          vcs-repo-file-url: ${{ env.TEMPORARY_REPO_PATH }}/scripts/orca/dependencies.repos
-          skip-tests: true
-      - name: Execute tests
+          required-ros-distributions: humble
+      - name: Create workspace
         run: |
-          cd ${{ env.TEMPORARY_REPO_PATH }}/scripts/orca
-          chmod +x ${{ env.TEMPORARY_REPO_PATH }}/scripts/orca/simulator_test.sh
-          ./${{ env.TEMPORARY_REPO_PATH }}/scripts/orca/simulator_test.sh
+          mkdir -p ~/ros2_ws/src
+          cp -R $GITHUB_WORKSPACE ~/ros2_ws/src/
+      - name: Clone vortex dependencies
+        run: |
+          cd ~/ros2_ws/src
+          git clone https://github.com/vortexntnu/vortex-msgs.git
+          git clone https://github.com/vortexntnu/vortex-auv.git
+          git clone https://github.com/patrykcieslak/stonefish_ros2.git
+          git clone https://github.com/vortexntnu/vortex-stonefish-sim.git
+      - name: Install dependencies
+        run: |
+          cd ~/ros2_ws
+          rosdep update
+          rosdep install --from-paths src --ignore-src -r -y
+      - name: Build workspace
+        run: |
+          cd ~/ros2_ws
+          . /opt/ros/humble/setup.sh
+          colcon build --symlink-install
+      - name: Execute scripts from local repository
+        run: |
+          chmod +x ${{ env.TEMPORARY_REPO_PATH }}/scripts/orca/*.sh
+          for script in ${{ env.TEMPORARY_REPO_PATH }}/scripts/orca/*.sh; do
+            echo "Executing $script"
+            ./$script
+          done
+      - uses: actions/upload-artifact@v4
+        with:
+          name: colcon-logs
+          path: ~/ros2_ws/log
+        if: failure()
