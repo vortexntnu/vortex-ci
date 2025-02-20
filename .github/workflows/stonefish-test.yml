@@ -49,6 +49,7 @@ jobs:
         run: |
           . /opt/ros/humble/setup.sh
           . ~/ros2_ws/install/setup.bash
+          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
           chmod +x ${{ env.TEMPORARY_REPO_PATH }}/scripts/orca/simulator_test.sh
           ./${{ env.TEMPORARY_REPO_PATH }}/scripts/orca/simulator_test.sh
       - uses: actions/upload-artifact@v4
