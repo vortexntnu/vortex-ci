@@ -34,7 +34,6 @@ jobs:
         with:
           target-ros2-distro: humble
           vcs-repo-file-url: ${{ env.TEMPORARY_REPO_PATH }}/scripts/orca/dependencies.repos
-          package-name: vortex-msgs vortex-auv vortex-stonefish-sim
           skip-tests: true
       - name: Execute tests
         run: |
