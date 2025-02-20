@@ -28,22 +28,20 @@ echo "Cloning and building Stonefish..."
 export CXXFLAGS="-std=c++17"
 export CFLAGS="-std=c++17"
 
-# Clone Stonefish repository
+# Install Stonefish in /opt or a higher directory
+cd ~
 git clone https://github.com/patrykcieslak/stonefish.git
 cd stonefish
 
-# Create build directory
+# Build Stonefish
 mkdir build
 cd build
-
-# Run CMake
 cmake ..
-
-# Build with all available CPU cores
 make -j"$(nproc)"
-
-# Install
 sudo make install
+
+# Return to ROS workspace
+cd ~/ros2_ws/src
 
 echo "Stonefish installation complete."
 echo "Finished installing extra dependencies."
