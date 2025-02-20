@@ -39,10 +39,11 @@ jobs:
       - name: Build workspace
         run: |
           cd ~/ros2_ws
-          . /opt/ros/humble/setup.sh
-          colcon build --packages-select stonefish_ros2
-          source install/setup.bash
-          colcon build --packages-exclude stonefish_ros2
+          . /opt/ros/humble/setup.sh  # Source ROS 2
+          colcon build --packages-select stonefish_ros2  # Build Stonefish ROS package
+          . install/setup.bash  # Source the workspace
+          colcon build --packages-exclude stonefish_ros2  # Build remaining packages
+        
       - name: Execute scripts from local repository
         run: |
           chmod +x ${{ env.TEMPORARY_REPO_PATH }}/scripts/orca/*.sh
