@@ -22,19 +22,22 @@ jobs:
           echo "Checking for ${SCRIPT_NAME}..."
           chmod +x "$SCRIPT_NAME"
           ./$SCRIPT_NAME
-      - uses: ros-tooling/action-ros-ci@v0.3
-        id: action_ros_ci_step
+      - name: Build stonefish_ros2 first
+        uses: ros-tooling/action-ros-ci@v0.3
         with:
           target-ros2-distro: humble
           vcs-repo-file-url: ${{ env.TEMPORARY_REPO_PATH }}/scripts/orca/dependencies.repos
+          package-name: stonefish_ros2
+          skip-tests: true
+      - name: Build remaining packages
+        uses: ros-tooling/action-ros-ci@v0.3
+        with:
+          target-ros2-distro: humble
+          vcs-repo-file-url: ${{ env.TEMPORARY_REPO_PATH }}/scripts/orca/dependencies.repos
+          package-name: vortex-msgs vortex-auv vortex-stonefish-sim
           skip-tests: true
       - name: Execute tests
         run: |
           cd ${{ env.TEMPORARY_REPO_PATH }}/scripts/orca
           chmod +x ${{ env.TEMPORARY_REPO_PATH }}/scripts/orca/simulator_test.sh
           ./${{ env.TEMPORARY_REPO_PATH }}/scripts/orca/simulator_test.sh
-      - uses: actions/upload-artifact@v4
-        with:
-          name: colcon-logs
-          path: ${{ steps.action_ros_ci_step.outputs.ros-workspace-directory-name }}/log
-        if: failure() # upload the logs only when the build fails
