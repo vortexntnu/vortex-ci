@@ -6,7 +6,10 @@ SIM_PID=$!
 echo "Launced simulator with PID: $SIM_PID"
 
 echo "Waiting for simulator to start..."
-timeout 30s bash -c 'until ros2 topic list | grep -q "/orca/odom"; do sleep 1; done'
+timeout 30s bash -c '
+    while ! ros2 topic list | grep -q "/orca/odom"; do
+        sleep 1
+    done || true'
 echo "Simulator started"
 
 echo "Waiting for odom data..."
@@ -21,7 +24,7 @@ echo "Waiting for sim interface to start..."
 timeout 30s bash -c 'until ros2 topic list | grep -q "/orca/pose"; do sleep 1; done'
 echo "Simulator started"
 
-echo "Waiting for odom data..."
+echo "Waiting for pose data..."
 timeout 10s ros2 topic echo /orca/pose --once
 echo "Got pose data"
 
@@ -38,8 +41,6 @@ ros2 topic pub /orca/killswitch std_msgs/msg/Bool "{data: false}" -1
 ros2 topic pub /orca/operation_mode std_msgs/msg/String "{data: 'autonomous mode'}" -1
 
 echo "Sending goal"
-pwd
-ls -R
-python3 scripts/orca/send_goal.py
+python3 repo/scripts/orca/send_goal.py
 
 kill -TERM -"$SIM_PID" -"$ORCA_PID" -"$CONTROLLER_PID" -"$FILTER_PID"
