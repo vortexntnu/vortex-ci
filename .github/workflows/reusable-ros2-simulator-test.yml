@@ -78,7 +78,7 @@ jobs:
       - name: Build workspace
         shell: bash
         run: |
-          cd ~/ros2_ws
+          cd $WORKSPACE/src
           . /opt/ros/humble/setup.sh  # Source ROS 2
           colcon build --packages-select stonefish_ros2  # Build Stonefish ROS package
           . install/setup.bash  # Source the workspace
