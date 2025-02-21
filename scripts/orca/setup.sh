@@ -51,9 +51,6 @@ install_stonefish() {
     mkdir -p "$STONEFISH_DIR/build"
     cd "$STONEFISH_DIR/build"
 
-    export CXXFLAGS="-std=c++14"
-    export CFLAGS="-std=c++14"
-
     cmake ..
     make -j"$(nproc)"
     sudo make install
