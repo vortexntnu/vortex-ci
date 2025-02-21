@@ -1,56 +1,91 @@
 #!/bin/bash
-# requirements.sh
-# This script installs additional dependencies that are not managed by rosdep.
-# It can install both Python libraries (using pip) and C++ libraries (using apt-get).
-
-# Exit immediately if any command fails to prevent the script from continuing after an error.
 set -e
 
-echo "Starting manual installation of extra dependencies..."
+# ----------------------------- GLOBAL VARIABLES -----------------------------
+STONEFISH_DIR="$HOME/opt/stonefish"
+ROS_WORKSPACE="$HOME/ros2_ws"
+LOG_PREFIX="[$(date +%T)]"
+
+# ----------------------------- HELPER FUNCTIONS -----------------------------
+log_info() {
+    echo -e "$LOG_PREFIX [INFO] $1"
+}
+
+log_error() {
+    echo -e "$LOG_PREFIX [ERROR] $1" >&2
+}
 
 # ----------------------------- PYTHON DEPENDENCIES -----------------------------
-# Upgrade pip to ensure compatibility with the latest packages
-pip3 install --upgrade pip
-pip3 install --upgrade 'numpy<1.25' 'scipy<1.12'
+install_python_dependencies() {
+    log_info "Installing/upgrading Python dependencies..."
+    pip3 install --upgrade pip
+    pip3 install --upgrade 'numpy<1.25' 'scipy<1.12'
+    log_info "Python dependencies installed."
+}
 
 # ----------------------------- C++ DEPENDENCIES -----------------------------
-# Update and install dependencies needed by Stonefish, as well as typical build tools
-sudo apt-get update
-sudo apt-get install -y \
-  build-essential \
-  cmake \
-  git \
-  libglm-dev \
-  libsdl2-dev \
-  libfreetype6-dev
+install_cpp_dependencies() {
+    log_info "Installing required C++ dependencies..."
+    sudo apt-get update -qq
+    sudo apt-get install -y \
+        build-essential \
+        cmake \
+        git \
+        libglm-dev \
+        libsdl2-dev \
+        libfreetype6-dev
+    log_info "C++ dependencies installed."
+}
 
 # ----------------------------- STONEFISH INSTALLATION -----------------------------
-echo "Cloning and building Stonefish..."
-export CXXFLAGS="-std=c++14"
-export CFLAGS="-std=c++14"
+install_stonefish() {
+    if [ -d "$STONEFISH_DIR" ]; then
+        log_info "Stonefish is already installed at $STONEFISH_DIR. Skipping clone."
+    else
+        log_info "Cloning Stonefish repository..."
+        mkdir -p "$STONEFISH_DIR"
+        git clone https://github.com/patrykcieslak/stonefish.git "$STONEFISH_DIR"
+    fi
 
-# Install Stonefish in /opt or a higher directory
-mkdir -p ~/opt
-cd ~/opt
-git clone https://github.com/patrykcieslak/stonefish.git
-cd stonefish
+    log_info "Building Stonefish..."
+    mkdir -p "$STONEFISH_DIR/build"
+    cd "$STONEFISH_DIR/build"
 
-# Build Stonefish
-mkdir build
-cd build
-cmake ..
-make -j"$(nproc)"
-sudo make install
+    export CXXFLAGS="-std=c++14"
+    export CFLAGS="-std=c++14"
 
-cd ~/ros2_ws
-. /opt/ros/humble/setup.sh  # Source ROS 2
+    cmake ..
+    make -j"$(nproc)"
+    sudo make install
 
-# First, build Stonefish
-colcon build --packages-select stonefish_ros2 --symlink-install
+    log_info "Stonefish installation complete."
+}
 
-# Source and build the rest
-. install/setup.bash
-colcon build --packages-ignore stonefish_ros2 --symlink-install
+# ----------------------------- BUILD ROS 2 PACKAGES -----------------------------
+build_ros_workspace() {
+    log_info "Setting up ROS 2 workspace..."
+    cd "$ROS_WORKSPACE"
 
-echo "Stonefish installation complete."
-echo "Finished installing extra dependencies."
+    log_info "Sourcing ROS 2 setup..."
+    . /opt/ros/humble/setup.sh
+
+    log_info "Building stonefish_ros2 first (dependency for other packages)..."
+    colcon build --packages-select stonefish_ros2 --symlink-install
+
+    log_info "Sourcing workspace..."
+    . install/setup.bash
+
+    log_info "Building remaining ROS 2 packages..."
+    colcon build --packages-ignore stonefish_ros2 --symlink-install
+
+    log_info "ROS 2 workspace build complete."
+}
+
+# ----------------------------- EXECUTE INSTALLATION -----------------------------
+log_info "Starting manual installation of extra dependencies..."
+install_python_dependencies
+install_cpp_dependencies
+install_stonefish
+build_ros_workspace
+
+log_info "All dependencies installed successfully."
