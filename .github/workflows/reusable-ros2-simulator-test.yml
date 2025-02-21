@@ -17,7 +17,7 @@ on:
         required: false
         default: "*.repos"
         type: string
-      before_install_script:
+      setup_script:
         description: "Script to run before installing dependencies"
         required: false
         default: ""
@@ -26,18 +26,13 @@ on:
         description: "Test script to execute"
         required: true
         type: string
-      skip_tests:
-        description: "Skip running tests"
-        required: false
-        default: false
-        type: boolean
 jobs:
   build-and-test:
     runs-on: ${{ inputs.os }}
     container:
       image: ros:${{ inputs.ros_distro }}-ros-base
     env:
-      WORKSPACE: ~/ros2_ws # ✅ Now using ~/ros2_ws instead of $GITHUB_WORKSPACE
+      WORKSPACE: ~/ros2_ws
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -45,36 +40,23 @@ jobs:
         uses: ros-tooling/setup-ros@v0.7
         with:
           required-ros-distributions: ${{ inputs.ros_distro }}
-      # ✅ Ensure workspace directories exist
-      - name: Create ROS workspace structure
-        run: |
-          mkdir -p ~/ros2_ws/src
-          mkdir -p ~/ros2_ws/build
-          mkdir -p ~/ros2_ws/install
-          mkdir -p ~/ros2_ws/log
-      # ✅ Import dependencies using VCS
       - name: Import dependencies from .repos file
         if: inputs.vcs_repos_file != ''
         run: |
+          mkdir -p ~/ros2_ws/src
           vcs import ~/ros2_ws/src < ${{ inputs.vcs_repos_file }}
           rosdep update
           rosdep install --from-paths ~/ros2_ws/src --ignore-src -r -y
-      # ✅ Debug Environment Variables
-      - name: Debug Environment Variables
-        run: ls -la
-      # ✅ Run pre-install script (if provided)
       - name: Run pre-install script (if provided)
-        if: inputs.before_install_script != ''
+        if: inputs.setup_script != ''
         run: |
-          if [ -f "${{ inputs.before_install_script }}" ]; then
-            chmod +x "${{ inputs.before_install_script }}"
-            "${{ inputs.before_install_script }}"
+          if [ -f "${{ inputs.setup_script }}" ]; then
+            chmod +x "${{ inputs.setup_script }}"
+            "${{ inputs.setup_script }}"
           else
-            echo "Provided script does not exist: ${{ inputs.before_install_script }}"
+            echo "Provided script does not exist: ${{ inputs.setup_script }}"
           fi
-      # ✅ Run Test Script
       - name: Run Test Script
-        if: inputs.skip_tests == false
         shell: bash
         run: |
           chmod +x "${{ inputs.test_script }}"
@@ -82,7 +64,6 @@ jobs:
           . ~/ros2_ws/install/setup.bash
           export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
           "${{ inputs.test_script }}"
-      # ✅ Upload build logs if failure
       - uses: actions/upload-artifact@v4
         with:
           name: colcon-logs
