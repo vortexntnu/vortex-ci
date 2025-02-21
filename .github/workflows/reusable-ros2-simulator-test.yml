@@ -47,7 +47,7 @@ jobs:
           vcs import ~/ros2_ws/src < ${{ inputs.vcs_repos_file }}
           rosdep update
           rosdep install --from-paths ~/ros2_ws/src --ignore-src -r -y
-      - name: Run pre-install script (if provided)
+      - name: Run setup script (if provided)
         if: inputs.setup_script != ''
         run: |
           if [ -f "${{ inputs.setup_script }}" ]; then
