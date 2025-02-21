@@ -47,7 +47,7 @@ jobs:
           vcs import ~/ros2_ws/src < ${{ inputs.vcs_repos_file }}
           rosdep update
           rosdep install --from-paths ~/ros2_ws/src --ignore-src -r -y
-      - name: Run setup script (if provided)
+      - name: Run setup script
         if: inputs.setup_script != ''
         run: |
           if [ -f "${{ inputs.setup_script }}" ]; then
@@ -61,7 +61,7 @@ jobs:
         run: |
           if [ -f "${{ inputs.test_script }}" ]; then
             chmod +x "${{ inputs.test_script }}"
-            "${{ inputs.setup_script }}"
+            "${{ inputs.test_script }}"
           else
             echo "Provided script does not exist: ${{ inputs.test_script }}"
           fi
