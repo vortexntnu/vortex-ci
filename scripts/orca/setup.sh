@@ -40,5 +40,15 @@ cmake ..
 make -j"$(nproc)"
 sudo make install
 
+cd ~/ros2_ws
+. /opt/ros/humble/setup.sh  # Source ROS 2
+
+# First, build Stonefish
+colcon build --packages-select stonefish_ros2 --symlink-install
+
+# Source and build the rest
+. install/setup.bash
+colcon build --packages-ignore stonefish_ros2 --symlink-install
+
 echo "Stonefish installation complete."
 echo "Finished installing extra dependencies."
