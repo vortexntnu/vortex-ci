@@ -37,7 +37,7 @@ jobs:
     container:
       image: ros:${{ inputs.ros_distro }}-ros-base
     env:
-      WORKSPACE: $GITHUB_WORKSPACE/ros2_ws # Absolute path for the ROS workspace
+      WORKSPACE: ~/ros2_ws
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -49,7 +49,7 @@ jobs:
       - name: Create workspace and copy local repository
         run: |
           mkdir -p $WORKSPACE/src
-          cp -R . $WORKSPACE/src/
+          cp -R $GITHUB_WORKSPACE/* $WORKSPACE/src/
       # Optional: Import additional dependencies from a .repos file
       - name: Import dependencies from .repos file (if provided)
         if: inputs.vcs_repos_file != ''
