@@ -75,12 +75,14 @@ jobs:
             echo "Provided script does not exist: ${{ inputs.before_install_script }}"
           fi
       # ✅ BUILD ROS 2 WORKSPACE
-      - name: Build ROS 2 workspace
+      - name: Build workspace
+        shell: bash
         run: |
-          cd $WORKSPACE
-          . /opt/ros/${{ inputs.ros_distro }}/setup.sh
-          colcon build --symlink-install
-          . install/setup.bash
+          cd ~/ros2_ws
+          . /opt/ros/humble/setup.sh  # Source ROS 2
+          colcon build --packages-select stonefish_ros2  # Build Stonefish ROS package
+          . install/setup.bash  # Source the workspace
+          colcon build --packages-ignore stonefish_ros2  # Build remaining packages
       # ✅ RUN TEST SCRIPT
       - name: Run Test Script
         if: inputs.skip_tests == false
