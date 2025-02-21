@@ -61,12 +61,12 @@ jobs:
           rosdep install --from-paths ~/ros2_ws/src --ignore-src -r -y
       # ✅ Debug Environment Variables
       - name: Debug Environment Variables
-        run: env
+        run: ls -la ~/ros2_ws/src
       # ✅ Run pre-install script (if provided)
       - name: Run pre-install script (if provided)
         if: inputs.before_install_script != ''
         run: |
-          cd ~/ros2_ws
+          cd ~/ros2_ws/vortex-ci
           if [ -f "${{ inputs.before_install_script }}" ]; then
             chmod +x "${{ inputs.before_install_script }}"
             "${{ inputs.before_install_script }}"
