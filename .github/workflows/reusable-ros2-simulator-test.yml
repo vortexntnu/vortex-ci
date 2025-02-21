@@ -45,13 +45,6 @@ jobs:
         uses: ros-tooling/setup-ros@v0.7
         with:
           required-ros-distributions: ${{ inputs.ros_distro }}
-      # ✅ CREATE ros_ws STRUCTURE
-      - name: Create ROS workspace structure
-        run: |
-          mkdir -p $WORKSPACE/src
-          mkdir -p $WORKSPACE/build
-          mkdir -p $WORKSPACE/install
-          mkdir -p $WORKSPACE/log
       # ✅ IMPORT DEPENDENCIES using VCS
       - name: Import dependencies from .repos file
         if: inputs.vcs_repos_file != ''
@@ -59,21 +52,20 @@ jobs:
           vcs import $WORKSPACE/src < ${{ inputs.vcs_repos_file }}
           rosdep update
           rosdep install --from-paths $WORKSPACE/src --ignore-src -r -y
-      # ✅ VERIFY REPOSITORY CLONING
-      - name: Verify Repository Cloning
-        run: |
-          echo "Checking imported repositories..."
-          ls -R $WORKSPACE/src
       # ✅ RUN PRE-INSTALL SCRIPT (if provided)
       - name: Run pre-install script (if provided)
         if: inputs.before_install_script != ''
         run: |
+          cd $WORKSPACE
           if [ -f "$GITHUB_WORKSPACE/${{ inputs.before_install_script }}" ]; then
             chmod +x "$GITHUB_WORKSPACE/${{ inputs.before_install_script }}"
             "$GITHUB_WORKSPACE/${{ inputs.before_install_script }}"
           else
             echo "Provided script does not exist: ${{ inputs.before_install_script }}"
           fi
+      - name: Check filestructure
+        run: |
+          ls -la $GITHUB_WORKSPACE
       # ✅ BUILD ROS 2 WORKSPACE
       - name: Build workspace
         shell: bash
