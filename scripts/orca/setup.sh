@@ -26,10 +26,11 @@ sudo apt-get install -y \
 
 # ----------------------------- STONEFISH INSTALLATION -----------------------------
 echo "Cloning and building Stonefish..."
-export CXXFLAGS="-std=c++17"
-export CFLAGS="-std=c++17"
+export CXXFLAGS="-std=c++14"
+export CFLAGS="-std=c++14"
 
 # Install Stonefish in /opt or a higher directory
+cd ~/opt
 git clone https://github.com/patrykcieslak/stonefish.git
 cd stonefish
 
