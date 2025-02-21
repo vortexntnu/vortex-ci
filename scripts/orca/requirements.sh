@@ -40,8 +40,5 @@ cmake ..
 make -j"$(nproc)"
 sudo make install
 
-# Return to ROS workspace
-cd ~/ros2_ws/src
-
 echo "Stonefish installation complete."
 echo "Finished installing extra dependencies."
