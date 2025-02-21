@@ -54,6 +54,8 @@ jobs:
           rosdep update
           rosdep install --from-paths $WORKSPACE/src --ignore-src -r -y
       # ✅ RUN PRE-INSTALL SCRIPT (if provided)
+      - name: Debug Environment Variables
+        run: env
       - name: Run pre-install script (if provided)
         if: inputs.before_install_script != ''
         run: |
@@ -67,6 +69,8 @@ jobs:
       - name: Check filestructure
         run: |
           ls -la $GITHUB_WORKSPACE
+      - name: Debug Environment Variables
+        run: env
       # ✅ BUILD ROS 2 WORKSPACE
       - name: Build workspace
         shell: bash
