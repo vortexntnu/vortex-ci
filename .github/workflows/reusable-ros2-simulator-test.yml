@@ -1,0 +1,91 @@
+name: Reusable ROS 2 Simulator Test
+on:
+  workflow_call:
+    inputs:
+      os:
+        description: "Operating System to run the workflow on"
+        required: false
+        default: "ubuntu-22.04"
+        type: string
+      ros_distro:
+        description: "ROS 2 distribution to use"
+        required: false
+        default: "humble"
+        type: string
+      vcs_repos_file:
+        description: "Path to the .repos file for dependencies"
+        required: false
+        default: "*.repos"
+        type: string
+      before_install_script:
+        description: "Script to run before installing dependencies"
+        required: false
+        default: ""
+        type: string
+      test_script:
+        description: "Test script to execute"
+        required: true
+        type: string
+      skip_tests:
+        description: "Skip running tests"
+        required: false
+        default: false
+        type: boolean
+jobs:
+  build-and-test:
+    runs-on: ${{ inputs.os }}
+    container:
+      image: ros:${{ inputs.ros_distro }}-ros-base
+    env:
+      WORKSPACE: ~/ros2_ws
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup ROS 2
+        uses: ros-tooling/setup-ros@v0.7
+        with:
+          required-ros-distributions: ${{ inputs.ros_distro }}
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            cmake \
+            git \
+            libglm-dev \
+            libsdl2-dev \
+            libfreetype6-dev
+      - name: Create workspace and clone dependencies
+        run: |
+          mkdir -p $WORKSPACE/src
+          vcs import $WORKSPACE/src < ${{ inputs.vcs_repos_file }}
+          rosdep update
+          rosdep install --from-paths $WORKSPACE/src --ignore-src -r -y
+      - name: Run pre-install script (if provided)
+        if: inputs.before_install_script != ''
+        run: |
+          if [ -f "${{ inputs.before_install_script }}" ]; then
+            chmod +x "${{ inputs.before_install_script }}"
+            ./${{ inputs.before_install_script }}
+          else
+            echo "Provided script does not exist: ${{ inputs.before_install_script }}"
+          fi
+      - name: Build ROS 2 workspace
+        run: |
+          cd $WORKSPACE
+          . /opt/ros/${{ inputs.ros_distro }}/setup.sh
+          colcon build
+          . install/setup.bash
+      - name: Run Test Script
+        if: inputs.skip_tests == false
+        run: |
+          chmod +x ${{ inputs.test_script }}
+          . /opt/ros/${{ inputs.ros_distro }}/setup.sh
+          . ~/ros2_ws/install/setup.bash
+          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
+          ./${{ inputs.test_script }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: colcon-logs
+          path: ~/ros2_ws/log
+        if: failure()
