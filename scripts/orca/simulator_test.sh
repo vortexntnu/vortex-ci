@@ -43,4 +43,13 @@ ros2 topic pub /orca/operation_mode std_msgs/msg/String "{data: 'autonomous mode
 echo "Sending goal"
 python3 repo/scripts/orca/send_goal.py
 
+echo "Checking if goal reached"
+python3 repo/scripts/orca/check_goal.py
+if [ $? -ne 0 ]; then
+    echo "Test failed: Drone did not reach goal."
+    exit 1
+else
+    echo "Test passed: Drone reached goal."
+fi
+
 kill -TERM -"$SIM_PID" -"$ORCA_PID" -"$CONTROLLER_PID" -"$FILTER_PID"
