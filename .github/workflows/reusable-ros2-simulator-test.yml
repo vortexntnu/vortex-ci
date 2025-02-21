@@ -37,7 +37,7 @@ jobs:
     container:
       image: ros:${{ inputs.ros_distro }}-ros-base
     env:
-      WORKSPACE: $GITHUB_WORKSPACE/ros2_ws # Ensure all scripts refer to this
+      WORKSPACE: $GITHUB_WORKSPACE/ros2_ws # Absolute path for the ROS workspace
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -45,22 +45,16 @@ jobs:
         uses: ros-tooling/setup-ros@v0.7
         with:
           required-ros-distributions: ${{ inputs.ros_distro }}
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            build-essential \
-            cmake \
-            git \
-            libglm-dev \
-            libsdl2-dev \
-            libfreetype6-dev
-      - name: Create workspace and clone dependencies
+      # NEW: Copy the local repository into the workspace
+      - name: Create workspace and copy local repository
         run: |
           mkdir -p $WORKSPACE/src
+          cp -R . $WORKSPACE/src/
+      # Optional: Import additional dependencies from a .repos file
+      - name: Import dependencies from .repos file (if provided)
+        if: inputs.vcs_repos_file != ''
+        run: |
           vcs import $WORKSPACE/src < ${{ inputs.vcs_repos_file }}
-          rosdep update
-          rosdep install --from-paths $WORKSPACE/src --ignore-src -r -y
       - name: Verify Repository Cloning
         run: |
           echo "Checking imported repositories..."
