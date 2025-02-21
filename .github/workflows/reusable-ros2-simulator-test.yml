@@ -75,6 +75,7 @@ jobs:
       # ✅ Run Test Script
       - name: Run Test Script
         if: inputs.skip_tests == false
+        shell: bash
         run: |
           chmod +x "${{ inputs.test_script }}"
           . /opt/ros/${{ inputs.ros_distro }}/setup.sh
