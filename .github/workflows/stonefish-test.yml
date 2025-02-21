@@ -38,9 +38,8 @@ jobs:
           chmod +x ${{ env.TEMPORARY_REPO_PATH }}/scripts/orca/requirements.sh
           ./${{ env.TEMPORARY_REPO_PATH }}/scripts/orca/requirements.sh
       - name: Fix NumPy and SciPy Version Mismatch
+        shell: bash
         run: |
-          source /opt/ros/humble/setup.bash
-          source ~/ros2_ws/install/setup.bash
           pip install --upgrade 'numpy<1.25' 'scipy<1.12'
       - name: Build workspace
         shell: bash
