@@ -30,6 +30,7 @@ export CXXFLAGS="-std=c++14"
 export CFLAGS="-std=c++14"
 
 # Install Stonefish in /opt or a higher directory
+mkdir -p ~/opt
 cd ~/opt
 git clone https://github.com/patrykcieslak/stonefish.git
 cd stonefish
