@@ -1,4 +1,4 @@
-name: Reusable ROS 2 Simulator Test
+name: Reusable ROS 2 Stonefish Simulator Test
 on:
   workflow_call:
     inputs:
@@ -37,7 +37,7 @@ jobs:
     container:
       image: ros:${{ inputs.ros_distro }}-ros-base
     env:
-      WORKSPACE: ~/ros2_ws
+      WORKSPACE: $GITHUB_WORKSPACE/ros2_ws # Ensure all scripts refer to this
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -64,9 +64,9 @@ jobs:
       - name: Run pre-install script (if provided)
         if: inputs.before_install_script != ''
         run: |
-          if [ -f "${{ inputs.before_install_script }}" ]; then
-            chmod +x "${{ inputs.before_install_script }}"
-            ./${{ inputs.before_install_script }}
+          if [ -f "$GITHUB_WORKSPACE/${{ inputs.before_install_script }}" ]; then
+            chmod +x "$GITHUB_WORKSPACE/${{ inputs.before_install_script }}"
+            "$GITHUB_WORKSPACE/${{ inputs.before_install_script }}"
           else
             echo "Provided script does not exist: ${{ inputs.before_install_script }}"
           fi
@@ -79,13 +79,13 @@ jobs:
       - name: Run Test Script
         if: inputs.skip_tests == false
         run: |
-          chmod +x ${{ inputs.test_script }}
+          chmod +x "$GITHUB_WORKSPACE/${{ inputs.test_script }}"
           . /opt/ros/${{ inputs.ros_distro }}/setup.sh
-          . ~/ros2_ws/install/setup.bash
+          . $WORKSPACE/install/setup.bash
           export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
-          ./${{ inputs.test_script }}
+          "$GITHUB_WORKSPACE/${{ inputs.test_script }}"
       - uses: actions/upload-artifact@v4
         with:
           name: colcon-logs
-          path: ~/ros2_ws/log
+          path: $WORKSPACE/log
         if: failure()

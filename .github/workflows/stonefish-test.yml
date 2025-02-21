@@ -1,6 +1,6 @@
 name: Build ROS 2 Package
 on:
-  push:
+  workflow_dispatch:
 jobs:
   build:
     runs-on: ubuntu-22.04
