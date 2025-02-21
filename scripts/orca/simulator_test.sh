@@ -1,9 +1,12 @@
 #!/bin/bash
 set -e
 
+# ✅ Get the directory of this script dynamically
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
 setsid ros2 launch stonefish_sim simulation_nogpu.launch.py &
 SIM_PID=$!
-echo "Launced simulator with PID: $SIM_PID"
+echo "Launched simulator with PID: $SIM_PID"
 
 echo "Waiting for simulator to start..."
 timeout 30s bash -c '
@@ -18,7 +21,7 @@ echo "Got odom data"
 
 setsid ros2 launch stonefish_sim orca_sim.launch.py &
 ORCA_PID=$!
-echo "Launced orca with PID: $ORCA_PID"
+echo "Launched orca with PID: $ORCA_PID"
 
 echo "Waiting for sim interface to start..."
 timeout 30s bash -c 'until ros2 topic list | grep -q "/orca/pose"; do sleep 1; done'
@@ -30,21 +33,22 @@ echo "Got pose data"
 
 setsid ros2 launch dp_adapt_backs_controller dp_adapt_backs_controller.launch.py &
 CONTROLLER_PID=$!
-echo "Launced controller with PID: $CONTROLLER_PID"
+echo "Launched controller with PID: $CONTROLLER_PID"
 
 setsid ros2 launch reference_filter_dp reference_filter.launch.py &
 FILTER_PID=$!
-echo "Launced filter with PID: $FILTER_PID"
+echo "Launched filter with PID: $FILTER_PID"
 
 echo "Turning off killswitch and setting operation mode to autonomous mode"
 ros2 topic pub /orca/killswitch std_msgs/msg/Bool "{data: false}" -1
 ros2 topic pub /orca/operation_mode std_msgs/msg/String "{data: 'autonomous mode'}" -1
 
 echo "Sending goal"
-python3 repo/scripts/orca/send_goal.py
+python3 "$SCRIPT_DIR/send_goal.py"  # ✅ Dynamically resolved path
 
 echo "Checking if goal reached"
-python3 repo/scripts/orca/check_goal.py
+python3 "$SCRIPT_DIR/check_goal.py"  # ✅ Dynamically resolved path
+
 if [ $? -ne 0 ]; then
     echo "Test failed: Drone did not reach goal."
     exit 1
