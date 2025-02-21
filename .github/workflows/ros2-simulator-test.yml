@@ -3,7 +3,7 @@ on:
   push:
 jobs:
   test-stonefish:
-    uses: vortexntnu/vortex-ci/.github/workflows/reusable-ros2-stonefish-simulator-test.yaml@refactor/simulator-test
+    uses: vortexntnu/vortex-ci/.github/workflows/reusable-ros2-simulator-test.yml@refactor/simulator-test
     with:
       vcs_repos_file: "scripts/orca/dependencies.repos"
       before_install_script: "scripts/orca/requirements.sh"
