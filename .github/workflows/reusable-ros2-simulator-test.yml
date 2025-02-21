@@ -49,6 +49,7 @@ jobs:
       - name: Import dependencies from .repos file
         if: inputs.vcs_repos_file != ''
         run: |
+          mkdir -p $WORKSPACE/src
           vcs import $WORKSPACE/src < ${{ inputs.vcs_repos_file }}
           rosdep update
           rosdep install --from-paths $WORKSPACE/src --ignore-src -r -y
