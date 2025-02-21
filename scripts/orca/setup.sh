@@ -11,6 +11,7 @@ echo "Starting manual installation of extra dependencies..."
 # ----------------------------- PYTHON DEPENDENCIES -----------------------------
 # Upgrade pip to ensure compatibility with the latest packages
 pip3 install --upgrade pip
+pip3 install --upgrade 'numpy<1.25' 'scipy<1.12'
 
 # ----------------------------- C++ DEPENDENCIES -----------------------------
 # Update and install dependencies needed by Stonefish, as well as typical build tools
