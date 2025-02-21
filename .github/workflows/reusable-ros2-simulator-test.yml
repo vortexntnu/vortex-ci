@@ -61,6 +61,10 @@ jobs:
           vcs import $WORKSPACE/src < ${{ inputs.vcs_repos_file }}
           rosdep update
           rosdep install --from-paths $WORKSPACE/src --ignore-src -r -y
+      - name: Verify Repository Cloning
+        run: |
+          echo "Checking imported repositories..."
+          ls -R $WORKSPACE/src
       - name: Run pre-install script (if provided)
         if: inputs.before_install_script != ''
         run: |
