@@ -45,12 +45,6 @@ jobs:
         uses: ros-tooling/setup-ros@v0.7
         with:
           required-ros-distributions: ${{ inputs.ros_distro }}
-      # NEW: Copy the local repository into the workspace
-      - name: Create workspace and copy local repository
-        run: |
-          mkdir -p $WORKSPACE/src
-          cp -R $GITHUB_WORKSPACE/* $WORKSPACE/src/
-      # Optional: Import additional dependencies from a .repos file
       - name: Import dependencies from .repos file (if provided)
         if: inputs.vcs_repos_file != ''
         run: |
@@ -58,7 +52,7 @@ jobs:
       - name: Verify Repository Cloning
         run: |
           echo "Checking imported repositories..."
-          ls -R $WORKSPACE/src
+          ls $WORKSPACE/src
       - name: Run pre-install script (if provided)
         if: inputs.before_install_script != ''
         run: |
