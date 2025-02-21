@@ -38,6 +38,8 @@ ros2 topic pub /orca/killswitch std_msgs/msg/Bool "{data: false}" -1
 ros2 topic pub /orca/operation_mode std_msgs/msg/String "{data: 'autonomous mode'}" -1
 
 echo "Sending goal"
+pwd
+ls -R
 python3 scripts/orca/send_goal.py
 
 kill -TERM -"$SIM_PID" -"$ORCA_PID" -"$CONTROLLER_PID" -"$FILTER_PID"
