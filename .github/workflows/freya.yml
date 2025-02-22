@@ -1,4 +1,4 @@
-name: ROS 2 Simulator Test
+name: orca
 on:
   push:
   workflow_dispatch:
@@ -9,9 +9,9 @@ jobs:
     strategy:
       matrix:
         test_script:
-          - "scripts/orca/waypoint_navigation/simulator_test.sh"
+          - "scripts/freya/freya_sim_test.sh"
     uses: vortexntnu/vortex-ci/.github/workflows/reusable-ros2-simulator-test.yml@refactor/simulator-test
     with:
-      vcs_repos_file: "scripts/orca/dependencies.repos"
-      setup_script: "scripts/orca/setup.sh"
+      vcs_repos_file: "scripts/freya/dependencies.repos"
+      setup_script: "scripts/freya/setup.sh"
       test_script: "${{ matrix.test_script }}"
