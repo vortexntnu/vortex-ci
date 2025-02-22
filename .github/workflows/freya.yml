@@ -1,0 +1,16 @@
+name: freya
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 1 * * *' # Runs daily at 01:00 UTC
+jobs:
+  call_reusable_workflow:
+    strategy:
+      matrix:
+        test_script:
+          - "scripts/freya/freya_sim_test.sh"
+    uses: vortexntnu/vortex-ci/.github/workflows/reusable-ros2-simulator-test.yml@main
+    with:
+      vcs_repos_file: "scripts/freya/dependencies.repos"
+      setup_script: "scripts/freya/setup.sh"
+      test_script: "${{ matrix.test_script }}"

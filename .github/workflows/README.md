@@ -34,7 +34,7 @@ jobs:
     uses: vortexntnu/vortex-ci/.github/workflows/reusable-industrial-ci.yml@main
 ```
 
-## reusable-semrel.yml
+## reusable-semantic-release.yml
 This reusable workflow uses [semantic-release](https://github.com/cycjimmy/semantic-release-action/tree/v4.1.1/) to automate semantic versioning. It generates version numbers based on your commit messages, creates Git tags, and publishes release notes. It uses the [.releaserc](/.releaserc) file in this repository to configure the release process. You can pass in the following inputs:
 - ```os```: Operating System for running the workflow (default: "ubuntu-latest").
 - ```central_repo_name```: Repo name containing this workflow (default: "vortexntnu/vortex-ci").
@@ -52,7 +52,7 @@ on:
       - main
 jobs:
   call_reusable_workflow:
-    uses: vortexntnu/vortex-ci/.github/workflows/reusable-semrel.yml@main
+    uses: vortexntnu/vortex-ci/.github/workflows/reusable-semantic-release.yml@main
 ```
 
 ## reusable-code-coverage.yml
