@@ -36,7 +36,7 @@ jobs:
       run:
         shell: bash
     steps:
-      - uses: ros-tooling/setup-ros@0.7.9
+      - uses: ros-tooling/setup-ros@0.7.10
         with:
           use-ros2-testing: true
           required-ros-distributions: ${{ inputs.ros_distro }}
