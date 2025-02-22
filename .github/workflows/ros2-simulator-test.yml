@@ -1,4 +1,4 @@
-name: Run Stonefish Simulator Test
+name: ROS 2 Simulator Test
 on:
   push:
   workflow_dispatch:
