@@ -1,6 +1,12 @@
 #!/bin/bash
 set -e
 
+# Load ROS 2 environment
+echo "Setting up ROS 2 environment..."
+. /opt/ros/humble/setup.sh
+. ~/ros2_ws/install/setup.bash
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
+
 # Get the directory of this script dynamically
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
