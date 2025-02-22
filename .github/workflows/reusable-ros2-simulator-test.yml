@@ -1,4 +1,4 @@
-name: Reusable ROS 2 Stonefish Simulator Test
+name: Reusable ROS 2 Simulator Test
 on:
   workflow_call:
     inputs:
