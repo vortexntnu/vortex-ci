@@ -1,6 +1,5 @@
 name: orca
 on:
-  push:
   workflow_dispatch:
   schedule:
     - cron: '0 1 * * *' # Runs daily at 01:00 UTC
@@ -10,7 +9,7 @@ jobs:
       matrix:
         test_script:
           - "scripts/orca/waypoint_navigation/simulator_test.sh"
-    uses: vortexntnu/vortex-ci/.github/workflows/reusable-ros2-simulator-test.yml@refactor/simulator-test
+    uses: vortexntnu/vortex-ci/.github/workflows/reusable-ros2-simulator-test.yml@main
     with:
       vcs_repos_file: "scripts/orca/dependencies.repos"
       setup_script: "scripts/orca/setup.sh"
