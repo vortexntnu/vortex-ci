@@ -56,15 +56,11 @@ jobs:
           else
             echo "Provided script does not exist: ${{ inputs.setup_script }}"
           fi
-      - name: Run Test Script
-        shell: bash
+      - name: Run test script
         if: inputs.test_script != ''
         run: |
           if [ -f "${{ inputs.test_script }}" ]; then
             chmod +x "${{ inputs.test_script }}"
-            . /opt/ros/${{ inputs.ros_distro }}/setup.sh
-            . ~/ros2_ws/install/setup.bash
-            export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
             "${{ inputs.test_script }}"
           else
             echo "Provided script does not exist: ${{ inputs.test_script }}"
