@@ -1,4 +1,4 @@
-name: Run Stonefish Simulation Test
+name: Run Stonefish Simulator Test
 on:
   push:
   workflow_dispatch:

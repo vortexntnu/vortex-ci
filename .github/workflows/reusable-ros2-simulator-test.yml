@@ -18,12 +18,12 @@ on:
         default: "*.repos"
         type: string
       setup_script:
-        description: "Script to run before installing dependencies"
+        description: "Path to the setup script to execute"
         required: false
         default: ""
         type: string
       test_script:
-        description: "Test script to execute"
+        description: "Path to the test script to execute"
         required: true
         type: string
 jobs:
