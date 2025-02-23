@@ -1,19 +1,18 @@
 name: Deploy Sphinx documentation
-# Only run on main pushes
+# Run when called
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
-  workflow_dispatch:
-permissions:
-  contents: write
+  workflow_call:
+    inputs:
+      os:
+        description: "Operating System to run the workflow on"
+        required: false
+        default: "ubuntu-22.04"
+        type: string
+    
 jobs:
   # Job 1: check if docs folder with required files are present
   check-docs:
-    runs-on: ubuntu-22.04
+    runs-on: ${{ inputs.os }}
     outputs:
       docs_exists: ${{ steps.check.outputs.exists }}
     steps:
@@ -29,12 +28,13 @@ jobs:
             echo "exists=false" >> $GITHUB_ENV
             echo "exists=false" >> $GITHUB_OUTPUT
           fi
+
   # Job 2: build and deploy docs to github pages
   build-deploy:
     needs: check-docs
     # Only run this step if we found docs directory in earlier step
     if: needs.check-docs.outputs.docs_exists == 'true'
-    runs-on: ubuntu-22.04
+    runs-on: ${{ inputs.os }}
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
