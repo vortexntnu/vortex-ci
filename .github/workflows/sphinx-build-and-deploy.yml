@@ -8,7 +8,6 @@ on:
         required: false
         default: "ubuntu-22.04"
         type: string
-    
 jobs:
   # Job 1: check if docs folder with required files are present
   check-docs:
@@ -28,7 +27,6 @@ jobs:
             echo "exists=false" >> $GITHUB_ENV
             echo "exists=false" >> $GITHUB_OUTPUT
           fi
-
   # Job 2: build and deploy docs to github pages
   build-deploy:
     needs: check-docs
