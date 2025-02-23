@@ -1,0 +1,37 @@
+# --------------------------------------------
+# - config file
+# --------------------------------------------
+
+version: 0.1.0
+name: auto-FAT
+owner: Vortex - DevOps
+
+# nettwork
+# --------------------------------------------
+network:
+  # rpi network
+  - name: rpi
+    ip_address: 129.241.187.99
+    user: ubuntu
+    password: ''
+    env_var:
+      - name: ROS_MASTER_URI
+        value: http://129.241.187.99:11311
+      - name: ROS_IP
+        value: 129.241.187.99
+      - name: ROS_HOSTNAME
+        value: 129.241.187.99
+
+
+  # xavier network
+  - name: xavier
+    ip_address: 129.241.187.100
+    user: vortex
+    password: gladlaks
+    env_var:
+      - name: ROS_MASTER_URI
+        value: http://129.241.187.99:11311
+      - name: ROS_IP
+        value: 129.241.187.100
+      - name: ROS_HOSTNAME
+        value: 129.241.187.100
