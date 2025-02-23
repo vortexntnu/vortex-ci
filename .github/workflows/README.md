@@ -119,7 +119,7 @@ jobs:
 This reusable workflow deploys sphinx documentation files present in the `docs/` folder in a repository onto github pages. If this folder does not exist, the workflow will skip this step.
 
 ### Additional setup:
-In order to properly deploy the pages, manual creation of sphinx docs folder and respective files is needed to fully utilize the workflow. [This guide](https://www.sphinx-doc.org/en/master/tutorial/automatic-doc-generation.html) on automatic sphinx documentation deployment should be followed in order to create the relevant files for Sphinx. 
+In order to properly deploy the pages, manual creation of sphinx docs folder and respective files is needed to fully utilize the workflow. [This guide](https://www.sphinx-doc.org/en/master/tutorial/automatic-doc-generation.html) on automatic sphinx documentation deployment should be followed in order to create the relevant files for Sphinx.
 
 ### Example of how to use in other repositories:
 
