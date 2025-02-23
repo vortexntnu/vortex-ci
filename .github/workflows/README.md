@@ -132,6 +132,9 @@ on:
 jobs:
   call_reusable_workflow:
     uses: vortexntnu/vortex-ci/.github/workflows/sphinx-build-and-deploy.yml@main
+    permissions:
+      pages: write
+      id-token: write  
 ```
 
 # Scripts
