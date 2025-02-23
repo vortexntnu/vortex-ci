@@ -115,6 +115,28 @@ jobs:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 ```
 
+## sphinx-build-and-deploy.yml
+This reusable workflow deploys sphinx documentation files present in the `docs/` folder in a repository onto github pages. If this folder does not exist, the workflow will skip this step.
+
+### Additional setup:
+In order to properly deploy the pages, manual creation of sphinx docs folder and respective files is needed to fully utilize the workflow. [This guide](https://www.sphinx-doc.org/en/master/tutorial/automatic-doc-generation.html) on automatic sphinx documentation deployment should be followed in order to create the relevant files for Sphinx.
+
+### Example of how to use in other repositories:
+
+```yml
+name: Sphinx build & deploy
+
+on:
+  push:
+
+jobs:
+  call_reusable_workflow:
+    uses: vortexntnu/vortex-ci/.github/workflows/sphinx-build-and-deploy.yml@main
+    permissions:
+      pages: write
+      id-token: write
+```
+
 # Scripts
 ## .pre-commit-config.yaml
 This file sets up the [pre-commit](https://pre-commit.com/) tool to automatically check and format code before every commit, ensuring consistent code quality. You can also integrate [pre-commit-ci](https://pre-commit.ci/) to run these checks on every push to a pull request and automatically fix issues. To configure this you need to go [here](https://github.com/organizations/vortexntnu/settings/installations) and click on ```pre-commit ci``` and add the repository you want to use it on. **NOTE**: pre-commit-ci is only available for public repositories.

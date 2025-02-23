@@ -1,0 +1,58 @@
+name: Deploy Sphinx documentation
+# Run when called
+on:
+  workflow_call:
+    inputs:
+      os:
+        description: "Operating System to run the workflow on"
+        required: false
+        default: "ubuntu-22.04"
+        type: string
+jobs:
+  # Job 1: check if docs folder with required files are present
+  check-docs:
+    runs-on: ${{ inputs.os }}
+    outputs:
+      docs_exists: ${{ steps.check.outputs.exists }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Check if directory exists
+        id: check
+        run: |
+          if [ -d "docs" ]; then
+            echo "exists=true" >> $GITHUB_ENV
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_ENV
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+  # Job 2: build and deploy docs to github pages
+  build-deploy:
+    needs: check-docs
+    # Only run this step if we found docs directory in earlier step
+    if: needs.check-docs.outputs.docs_exists == 'true'
+    runs-on: ${{ inputs.os }}
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      pages: write # Write permissions to deploy to pages
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: 3.7
+      - run: pip install sphinx sphinx_rtd_theme myst_parser
+      - name: Sphinx build
+        run: |
+          sphinx-build -b html ./docs/ _build
+      - name: Upload static files as artifact
+        id: upload
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _build/
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
