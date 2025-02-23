@@ -134,7 +134,7 @@ jobs:
     uses: vortexntnu/vortex-ci/.github/workflows/sphinx-build-and-deploy.yml@main
     permissions:
       pages: write
-      id-token: write  
+      id-token: write
 ```
 
 # Scripts
