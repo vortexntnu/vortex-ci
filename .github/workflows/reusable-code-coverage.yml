@@ -15,7 +15,7 @@ on:
       vcs-repo-file-url:
         description: 'Optional .repos file'
         required: false
-        default: "*.repos"
+        default: ""
         type: string
       before_install_target_dependencies:
         description: "Command or script to run before installing target dependencies"
