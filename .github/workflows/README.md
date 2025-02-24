@@ -110,7 +110,7 @@ on:
 
 jobs:
   coverage_build:
-    uses: vortexntnu/vortex-ci/.github/workflows/reusable-build-coverage.yml@main
+    uses: vortexntnu/vortex-ci/.github/workflows/reusable-code-coverag.yml@main
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 ```
