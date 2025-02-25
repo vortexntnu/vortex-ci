@@ -107,6 +107,11 @@ name: Code Coverage
 
 on:
   push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   coverage_build:
