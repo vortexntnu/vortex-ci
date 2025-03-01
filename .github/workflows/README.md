@@ -66,7 +66,7 @@ This reusable workflow is designed to run code coverage analysis on a ROS-based 
 #### Secrets:
 - ```CODECOV_TOKEN```: *(Required)* - Token for uploading coverage reports to Codecov. ([Guide](https://docs.codecov.com/docs/adding-the-codecov-token))
 #### Additional setup:
-- **codecov.yml**: Place this Codecov configuration file at the root of your repository. ([Guide](https://docs.codecov.com/docs/codecov-yaml)). ***NOTE:*** You must hardcode the paths to your packages; Codecov primarily detects C++ packages for coverage reporting. Also you need to update the repository name in the ```fixes``` section to match your repository:
+- **codecov.yml**: Place this Codecov configuration file at the root of your repository. ([Guide](https://docs.codecov.com/docs/codecov-yaml)). Codecov primarily detects C++ packages for coverage reporting. Also you need to update the repository name in the ```fixes``` section to match your repository:
 ```yml
 fixes:
   - "ros_ws/src/INSERT-YOUR-REPOSITORY-NAME/::"
