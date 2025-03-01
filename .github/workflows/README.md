@@ -71,7 +71,7 @@ This reusable workflow is designed to run code coverage analysis on a ROS-based 
 fixes:
   - "ros_ws/src/INSERT-YOUR-REPOSITORY-NAME/::"
 ```
-Example of a codecov.yml file:
+Example of a codecov.yml file (in this case for a repository called vortex-auv):
 ```yml
 coverage:
   precision: 2
@@ -91,13 +91,7 @@ comment:
 flags:
   unittests:
     paths:
-      - control/dp_adapt_backs_controller
-      - control/pid_controller_dp
-      - control/pid_controller_dp_euler
-      - control/velocity_controller_lqr
-      - guidance/reference_filter_dp
-      - motion/thrust_allocator_auv
-      - motion/thruster_interface_auv
+      - "**"
 ```
 - **.repos file**: See additional setup in [reusable-industrial-ci.yml](#reusable-industrial-ciyml).
 
