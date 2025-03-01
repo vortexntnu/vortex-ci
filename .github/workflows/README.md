@@ -144,7 +144,15 @@ This file sets up the [pre-commit](https://pre-commit.com/) tool to automaticall
 - .clang-format: Configuration for formatting C/C++ code with [clang-format](https://clang.llvm.org/docs/ClangFormat.html).
 (See an example in [.clang-format](https://github.com/vortexntnu/vortex-ci/blob/main/.clang-format))
 - ***The ```.pre-commit-config.yaml``` file must be placed in the root of the repository***.
-- Sometimes the spellchecker confuses words with abbreviations, causing it to incorrectly assert the there are grammatical errors. Words to ignore can be added in the config file.
+- Sometimes the spellchecker confuses words with abbreviations, causing it to incorrectly assert the there are grammatical errors. Words to ignore can be added in the config file:
+```yaml
+# Spellcheck in comments and docs
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.3.0
+    hooks:
+      - id: codespell
+        args: ['--write-changes', '--ignore-words-list=theses,fom'] <=== Add words your want to ignore here
+```
 ### Here is an example configuration file with General, Python, C/C++, and Spellcheck Hooks:
 ```yaml
 # To use:
