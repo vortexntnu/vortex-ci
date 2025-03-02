@@ -1,7 +1,6 @@
 import rclpy
 from rclpy.node import Node
 from rclpy.action import ActionClient
-from geometry_msgs.msg import PoseStamped
 from vortex_msgs.action import ReferenceFilterWaypoint
 import numpy as np
 
@@ -9,7 +8,7 @@ class ReferenceFilterWaypointClient(Node):
     def __init__(self):
         super().__init__('reference_filter_waypoint_client')
         # Create the action client
-        self._action_client = ActionClient(self, ReferenceFilterWaypoint, '/reference_filter')
+        self._action_client = ActionClient(self, ReferenceFilterWaypoint, '/orca/reference_filter')
         self.send_goal()
 
     def send_goal(self):
@@ -31,10 +30,10 @@ class ReferenceFilterWaypointClient(Node):
         goal_msg.goal.pose.orientation.z = quat[3]
 
         # Send the goal asynchronously
-        self._action_client.wait_for_server()
+        self._action_client.wait_for_server(timeout_sec=10.0)
         self.get_logger().info('Sending goal...')
         self._send_goal_future = self._action_client.send_goal_async(
-            goal_msg, feedback_callback=self.feedback_callback
+            goal_msg
         )
         self._send_goal_future.add_done_callback(self.goal_response_callback)
 
@@ -47,10 +46,6 @@ class ReferenceFilterWaypointClient(Node):
         self.get_logger().info('Goal accepted :)')
         self._get_result_future = goal_handle.get_result_async()
         self._get_result_future.add_done_callback(self.get_result_callback)
-
-    def feedback_callback(self, feedback_msg):
-        feedback = feedback_msg.feedback.feedback
-        # self.get_logger().info(f'Received feedback: x={feedback.x}, y={feedback.y}, z={feedback.z}')
 
     def get_result_callback(self, future):
         result = future.result().result.success
