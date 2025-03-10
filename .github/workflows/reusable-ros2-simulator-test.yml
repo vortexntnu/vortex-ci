@@ -26,11 +26,16 @@ on:
         description: "Path to the test script to execute"
         required: true
         type: string
+      docker_image:
+        description: "Docker image to run the job in"
+        required: false
+        default: ""
+        type: string
 jobs:
   build-and-test:
     runs-on: ${{ inputs.os }}
     container:
-      image: ros:${{ inputs.ros_distro }}-ros-base
+      image: ${{ inputs.docker_image != '' && inputs.docker_image || format('ros:{0}-ros-base', inputs.ros_distro) }}
     env:
       WORKSPACE: ~/ros2_ws
     steps:
