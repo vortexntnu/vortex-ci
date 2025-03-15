@@ -82,5 +82,5 @@ jobs:
           ROS_REPO: ${{ matrix.ROS_REPO }} # Pass ROS_REPO explicitly
           UPSTREAM_WORKSPACE: ${{ env.UPSTREAM_WORKSPACE }} # Pass upstream workspace URL
           NOT_TEST_BUILD: ${{ inputs.skip_tests }} # Skip tests if specified
-          BEFORE_INSTALL_TARGET_DEPENDENCIES: ${{ inputs.before_install_target_dependencies }} # Extra dependencies step
+          BEFORE_INIT: ${{ inputs.before_install_target_dependencies }} # Extra dependencies step
           ADDITIONAL_DEBS: ${{ inputs.additional_debs }} # Pass additional Debian packages as input
