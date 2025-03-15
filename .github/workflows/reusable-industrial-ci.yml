@@ -85,11 +85,11 @@ jobs:
       - name: Make script executable if provided
         if: inputs.before_install_upstream_dependencies != ''
         run: |
-          if [ -f "${{ inputs.before_install_target_dependencies }}" ]; then
-            echo "Making script executable: ${{ inputs.before_install_target_dependencies }}"
-            chmod +x "${{ inputs.before_install_target_dependencies }}"
+          if [ -f "${{ inputs.before_install_upstream_dependencies }}" ]; then
+            echo "Making script executable: ${{ inputs.before_install_upstream_dependencies }}"
+            chmod +x "${{ inputs.before_install_upstream_dependencies }}"
           else
-            echo "Provided path is not a file: ${{ inputs.before_install_target_dependencies }}"
+            echo "Provided path is not a file: ${{ inputs.before_install_upstream_dependencies }}"
           fi
       - uses: 'ros-industrial/industrial_ci@master' # Run industrial_ci
         env:
