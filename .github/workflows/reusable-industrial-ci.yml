@@ -32,6 +32,11 @@ on:
         required: false
         default: ""
         type: string
+      before_install_upstream_dependencies:
+        description: "Command to run before installing upstream dependencies"
+        required: false
+        default: ""
+        type: string
       additional_debs:
         description: "Additional Debian packages to install"
         required: false
@@ -76,6 +81,16 @@ jobs:
           else
             echo "Provided path is not a file: ${{ inputs.before_install_target_dependencies }}"
           fi
+      # Make the before_install_upstream_dependencies script executable
+      - name: Make script executable if provided
+        if: inputs.before_install_upstream_dependencies != ''
+        run: |
+          if [ -f "${{ inputs.before_install_target_dependencies }}" ]; then
+            echo "Making script executable: ${{ inputs.before_install_target_dependencies }}"
+            chmod +x "${{ inputs.before_install_target_dependencies }}"
+          else
+            echo "Provided path is not a file: ${{ inputs.before_install_target_dependencies }}"
+          fi
       - uses: 'ros-industrial/industrial_ci@master' # Run industrial_ci
         env:
           ROS_DISTRO: ${{ matrix.ROS_DISTRO }} # Pass ROS_DISTRO explicitly
@@ -83,4 +98,5 @@ jobs:
           UPSTREAM_WORKSPACE: ${{ env.UPSTREAM_WORKSPACE }} # Pass upstream workspace URL
           NOT_TEST_BUILD: ${{ inputs.skip_tests }} # Skip tests if specified
           BEFORE_INSTALL_TARGET_DEPENDENCIES: ${{ inputs.before_install_target_dependencies }} # Extra dependencies step
+          BEFORE_INSTALL_UPSTREAM_DEPENDENCIES: ${{ inputs.before_install_upstream_dependencies }} # Extra dependencies step
           ADDITIONAL_DEBS: ${{ inputs.additional_debs }} # Pass additional Debian packages as input
