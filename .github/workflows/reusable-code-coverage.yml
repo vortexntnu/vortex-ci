@@ -40,15 +40,25 @@ jobs:
         with:
           use-ros2-testing: true
           required-ros-distributions: ${{ inputs.ros_distro }}
-      - name: Install coverage tools
+      - name: Install coverage tools for Python
         run: |
-          set -v
-          sudo apt-get install -qq lcov python3-colcon-lcov-result
-          sudo apt-get install -qq python3-colcon-coveragepy-result python3-pytest-cov python3-pip python3-venv
+          set -eux
+          # Install system packages
+          sudo apt-get update
+          sudo apt-get install -qq lcov python3-colcon-lcov-result \
+            python3-colcon-coveragepy-result python3-pytest-cov \
+            python3-pip python3-venv
+
+          # Create a virtual environment for Python tools
           python3 -m venv ~/.venv --system-site-packages
+
+          # Add virtualenv bin path to PATH for later steps
+          echo "$HOME/.venv/bin" >> $GITHUB_PATH
+
+          # Activate and install tools
           source ~/.venv/bin/activate
-          python3 -m pip install coverage --upgrade
-          echo PATH=$PATH >> $GITHUB_ENV
+          pip install --upgrade pip
+          pip install coverage pytest pytest-cov
       - uses: actions/checkout@v4
       - name: Execute script if provided
         if: inputs.before_install_target_dependencies != ''
