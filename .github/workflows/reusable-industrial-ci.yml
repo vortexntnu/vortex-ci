@@ -42,6 +42,11 @@ on:
         required: false
         default: ""
         type: string
+      gcc_version:
+        description: "GCC version to install and use"
+        required: false
+        default: ""
+        type: string
 jobs:
   industrial_ci:
     name: ROS ${{ matrix.ROS_DISTRO }} (${{ matrix.ROS_REPO }})
@@ -91,7 +96,13 @@ jobs:
           else
             echo "Provided path is not a file: ${{ inputs.before_install_upstream_dependencies }}"
           fi
-      - uses: 'ros-industrial/industrial_ci@master' # Run industrial_ci
+      - name: Set up GCC version if provided
+        if: inputs.gcc_version != ''
+        run: |
+          echo "GCC version input provided: '${{ inputs.gcc_version }}'"
+          chmod +x ./ci/setup_gcc_version.sh
+          ./ci/setup_gcc_version.sh "${{ inputs.gcc_version }}"
+      - uses: 'vortexntnu/industrial_ci@master' # Run industrial_ci
         env:
           ROS_DISTRO: ${{ matrix.ROS_DISTRO }} # Pass ROS_DISTRO explicitly
           ROS_REPO: ${{ matrix.ROS_REPO }} # Pass ROS_REPO explicitly
