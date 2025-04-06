@@ -102,7 +102,7 @@ jobs:
           echo "GCC version input provided: '${{ inputs.gcc_version }}'"
           chmod +x ./ci/setup_gcc_version.sh
           ./ci/setup_gcc_version.sh "${{ inputs.gcc_version }}"
-      - uses: 'vortexntnu/industrial_ci@master' # Run industrial_ci
+      - uses: 'vortexntnu/industrial_ci@master' # Run forked version of industrial_ci
         env:
           ROS_DISTRO: ${{ matrix.ROS_DISTRO }} # Pass ROS_DISTRO explicitly
           ROS_REPO: ${{ matrix.ROS_REPO }} # Pass ROS_REPO explicitly
