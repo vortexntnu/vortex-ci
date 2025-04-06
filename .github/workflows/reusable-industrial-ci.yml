@@ -78,7 +78,7 @@ jobs:
           fi
       # Make the before_install_target_dependencies script executable
       - name: Make script executable if provided
-        if: inputs.before_install_target_dependencies != ''
+        if: ${{ inputs.before_install_target_dependencies != '' }}
         run: |
           if [ -f "${{ inputs.before_install_target_dependencies }}" ]; then
             echo "Making script executable: ${{ inputs.before_install_target_dependencies }}"
@@ -88,7 +88,7 @@ jobs:
           fi
       # Make the before_install_upstream_dependencies script executable
       - name: Make script executable if provided
-        if: inputs.before_install_upstream_dependencies != ''
+        if: ${{ inputs.before_install_upstream_dependencies != '' }}
         run: |
           if [ -f "${{ inputs.before_install_upstream_dependencies }}" ]; then
             echo "Making script executable: ${{ inputs.before_install_upstream_dependencies }}"
@@ -97,7 +97,7 @@ jobs:
             echo "Provided path is not a file: ${{ inputs.before_install_upstream_dependencies }}"
           fi
       - name: Set up GCC version if provided
-        if: inputs.gcc_version != ''
+        if: ${{ inputs.gcc_version != '' }}
         run: |
           echo "GCC version input provided: '${{ inputs.gcc_version }}'"
           chmod +x ./ci/setup_gcc_version.sh
