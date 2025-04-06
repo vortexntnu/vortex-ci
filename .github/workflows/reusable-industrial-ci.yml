@@ -100,18 +100,9 @@ jobs:
         if: ${{ inputs.gcc_version != '' }}
         run: |
           echo "GCC version input provided: '${{ inputs.gcc_version }}'"
-
-          # Add Ubuntu Toolchain PPA
-          sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends software-properties-common
-          sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
-          sudo apt-get update -qq
-
-          # Install and switch to specified GCC version
-          sudo apt-get install -y --no-install-recommends gcc-${{ inputs.gcc_version }} g++-${{ inputs.gcc_version }} lcov
-          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-${{ inputs.gcc_version }} 100
-          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-${{ inputs.gcc_version }} 100
-          sudo update-alternatives --install /usr/bin/gcov gcov /usr/bin/gcov-${{ inputs.gcc_version }} 100
+          curl -sSL https://raw.githubusercontent.com/vortexntnu/vortex-ci/main/scripts/setup_gcc_version.sh -o setup_gcc_version.sh
+          chmod +x setup_gcc_version.sh
+          ./setup_gcc_version.sh "${{ inputs.gcc_version }}"
       - uses: 'vortexntnu/industrial_ci@master' # Run forked version of industrial_ci
         env:
           ROS_DISTRO: ${{ matrix.ROS_DISTRO }} # Pass ROS_DISTRO explicitly
