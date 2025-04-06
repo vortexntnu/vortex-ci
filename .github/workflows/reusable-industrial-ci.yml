@@ -101,6 +101,10 @@ jobs:
         run: |
           echo "GCC version input provided: '${{ inputs.gcc_version }}'"
           curl -sSL https://raw.githubusercontent.com/vortexntnu/vortex-ci/main/scripts/setup_gcc_version.sh -o setup_gcc_version.sh
+          if [ $? -ne 0 ]; then
+            echo "Error: Failed to download setup_gcc_version.sh"
+            exit 1
+          fi
           chmod +x setup_gcc_version.sh
           ./setup_gcc_version.sh "${{ inputs.gcc_version }}"
       - uses: 'vortexntnu/industrial_ci@master' # Run forked version of industrial_ci
