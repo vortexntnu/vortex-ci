@@ -100,7 +100,7 @@ jobs:
         if: ${{ inputs.gcc_version != '' }}
         run: |
           echo "GCC version input provided: '${{ inputs.gcc_version }}'"
-          curl -sSL https://raw.githubusercontent.com/vortexntnu/vortex-ci/main/scripts/setup_gcc_version.sh -o setup_gcc_version.sh
+          curl -sSL https://raw.githubusercontent.com/vortexntnu/vortex-ci/ci/update-to-forked-industrial-ci/scripts/setup_gcc_version.sh -o setup_gcc_version.sh
           if [ $? -ne 0 ]; then
             echo "Error: Failed to download setup_gcc_version.sh"
             exit 1
