@@ -10,7 +10,8 @@ on:
     inputs:
       ros_distro:
         description: 'ROS2 distribution name'
-        required: true
+        required: false
+        default: 'humble'
         type: string
 jobs:
   pre-commit:
