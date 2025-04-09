@@ -34,6 +34,78 @@ jobs:
     uses: vortexntnu/vortex-ci/.github/workflows/reusable-industrial-ci.yml@main
 ```
 
+## reusable-pre-commit.yml
+This reusable workflow runs pre-commit using ROS2-specific hooks such as ament_cppcheck, ament_cpplint, and ament_lint_cmake. It is designed to run in a containerized ROS environment and supports custom configuration files.
+You can pass in the following inputs:
+- ```ros_distro```: The ROS 2 distribution name to use (e.g. "humble").
+- ```config_path```: (Required) Path to the pre-commit config file (e.g. .pre-commit-config-local.yaml).
+This workflow is typically used to run local ROS-specific hooks, while letting [pre-commit.ci](https://pre-commit.ci/) handle general formatting, linting, or spellchecking from a .pre-commit-config.yaml file in the root. NOTE: This workflow does not commit any changes to the repository.
+#### Additional setup:
+- The config file provided via config_path should be placed inside the repository and include only the local hooks, such as ament_cppcheck, ament_cpplint, and ament_lint_cmake.
+- The repository must be configured with a .pre-commit-config-local.yaml or similar.
+#### Example .pre-commit-config-local.yaml:
+```yaml
+# To use:
+#
+#     pre-commit run --all-files -c .pre-commit-config-local.yaml
+#
+# Or to install it for automatic checks on commit:
+#
+#     pre-commit install -c .pre-commit-config-local.yaml
+#
+# To update this file:
+#
+#     pre-commit autoupdate -c .pre-commit-config-local.yaml
+#
+# See https://pre-commit.com/ for documentation
+#
+# NOTE: This configuration uses local hooks specific to ROS2 (ament_* linters)
+
+repos:
+  - repo: local
+    hooks:
+      - id: ament_cppcheck
+        name: ament_cppcheck
+        description: Static code analysis of C/C++ files.
+        entry: env AMENT_CPPCHECK_ALLOW_SLOW_VERSIONS=1 ament_cppcheck
+        language: system
+        files: \.(h\+\+|h|hh|hxx|hpp|cuh|c|cc|cpp|cu|c\+\+|cxx|tpp|txx)$
+  - repo: local
+    hooks:
+      - id: ament_cpplint
+        name: ament_cpplint
+        description: Static code analysis of C/C++ files.
+        entry: ament_cpplint
+        language: system
+        files: \.(h\+\+|h|hh|hxx|hpp|cuh|c|cc|cpp|cu|c\+\+|cxx|tpp|txx)$
+        args: ["--linelength=100", "--filter=-whitespace/newline,-legal/copyright"]
+  # CMake hooks
+  - repo: local
+    hooks:
+      - id: ament_lint_cmake
+        name: ament_lint_cmake
+        description: Check format of CMakeLists.txt files.
+        entry: ament_lint_cmake
+        language: system
+        files: CMakeLists\.txt$
+```
+#### Here is an example of how to use the workflow in your repository:
+```yaml
+name: pre-commit
+
+on:
+  push:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 1 * * *' # Runs daily to check for dependency issues or flaking tests
+jobs:
+  call_reusable_workflow:
+    uses: vortexntnu/vortex-ci/.github/workflows/reusable-pre-commit.yml@main
+    with:
+        ros_distro: 'humble'
+        config_path: '.pre-commit-config-local.yaml'
+```
+
 ## reusable-semantic-release.yml
 This reusable workflow uses [semantic-release](https://github.com/cycjimmy/semantic-release-action/tree/v4.1.1/) to automate semantic versioning. It generates version numbers based on your commit messages, creates Git tags, and publishes release notes. It uses the [.releaserc](/.releaserc) file in this repository to configure the release process. You can pass in the following inputs:
 - ```os```: Operating System for running the workflow (default: "ubuntu-latest").
