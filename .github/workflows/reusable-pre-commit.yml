@@ -3,15 +3,16 @@ name: Reusable pre-commit
 # https://github.com/ros-controls/ros2_control_ci/blob/master/.github/workflows/reusable-pre-commit.yml
 # Licensed under the Apache License, Version 2.0
 
-# The pre-commit configuration is in .pre-commit-config.yaml
-# we don't use the pre-commit action because it doesn't support local hooks in its virtual environment
 on:
   workflow_call:
     inputs:
       ros_distro:
         description: 'ROS2 distribution name'
-        required: false
-        default: 'humble'
+        required: true
+        type: string
+      config_path:
+        description: 'Path to the pre-commit config file'
+        required: true
         type: string
 jobs:
   pre-commit:
@@ -51,7 +52,7 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: ~/.cache/pre-commit
-          key: pre-commit|${{ inputs.ros_distro }}|${{ hashFiles( format('{0}/.pre-commit-config.yaml', env.path) ) }}
+          key: pre-commit|${{ inputs.ros_distro }}|${{ hashFiles( format('{0}/{1}', env.path, inputs.config_path) ) }}
       - name: Install pre-commit and system hooks
         shell: bash
         run: |
@@ -65,4 +66,4 @@ jobs:
           source .venv/bin/activate
           source /opt/ros/${{ inputs.ros_distro }}/setup.bash
           cd ${{ env.path }}
-          pre-commit run --show-diff-on-failure --color=always --all-files --hook-stage manual
+          pre-commit run --show-diff-on-failure --color=always --all-files --hook-stage manual -c ${{ inputs.config_path }}
