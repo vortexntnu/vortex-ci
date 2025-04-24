@@ -106,4 +106,3 @@ jobs:
           BEFORE_INSTALL_UPSTREAM_DEPENDENCIES: ${{ inputs.before_install_upstream_dependencies }} # Extra dependencies step
           ADDITIONAL_DEBS: ${{ inputs.additional_debs }} # Pass additional Debian packages as input
           CMAKE_ARGS: ${{ inputs.cmake_args }} # Pass additional CMake arguments (e.g. warnings as errors)
-
