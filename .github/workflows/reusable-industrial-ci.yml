@@ -42,6 +42,11 @@ on:
         required: false
         default: ""
         type: string
+      cmake_args:
+        description: "Additional CMake arguments"
+        required: false
+        default: ""
+        type: string
 jobs:
   industrial_ci:
     name: ROS ${{ matrix.ROS_DISTRO }} (${{ matrix.ROS_REPO }})
@@ -100,3 +105,5 @@ jobs:
           BEFORE_INSTALL_TARGET_DEPENDENCIES: ${{ inputs.before_install_target_dependencies }} # Extra dependencies step
           BEFORE_INSTALL_UPSTREAM_DEPENDENCIES: ${{ inputs.before_install_upstream_dependencies }} # Extra dependencies step
           ADDITIONAL_DEBS: ${{ inputs.additional_debs }} # Pass additional Debian packages as input
+          CMAKE_ARGS: ${{ inputs.cmake_args }} # Pass additional CMake arguments (e.g. warnings as errors)
+
