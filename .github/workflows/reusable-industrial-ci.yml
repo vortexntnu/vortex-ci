@@ -45,7 +45,7 @@ on:
       cmake_args:
         description: "Additional CMake arguments"
         required: false
-        default: ""
+        default: '-DCMAKE_CXX_FLAGS="-Wall -Wextra -Werror" -DCMAKE_C_FLAGS="-Wall -Wextra -Werror"'
         type: string
 jobs:
   industrial_ci:
