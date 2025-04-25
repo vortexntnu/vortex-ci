@@ -10,6 +10,7 @@ This reusable workflow uses [industrial-ci](https://github.com/ros-industrial/in
 - ```skip_tests```: Boolean to skip running tests.
 - ```before_install_target_dependencies```: Command or path to script to run before installing dependencies. Used for installing dependencies that are not supported by rosdep, allowing custom scripts or commands to handle those cases before the main dependency installation process.
 - ```additional_debs```: Additional Debian packages to install.
+- ```cmake_args```: Additional CMake arguments to pass during the build.
 
 #### Additional setup:
 - **.repos file**: If necessary, include a .repos file that specifies extra repositories required by packages in the repository. Provide the path to this file in the ```upstream_workspace``` input. Example of a .repos file:
