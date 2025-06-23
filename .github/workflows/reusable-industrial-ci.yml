@@ -96,7 +96,7 @@ jobs:
           else
             echo "Provided path is not a file: ${{ inputs.before_install_upstream_dependencies }}"
           fi
-      - uses: 'vortexntnu/industrial_ci@master' # Run forked version of industrial_ci
+      - uses: 'ros-industrial/industrial_ci@master' # Run industrial_ci
         env:
           ROS_DISTRO: ${{ matrix.ROS_DISTRO }} # Pass ROS_DISTRO explicitly
           ROS_REPO: ${{ matrix.ROS_REPO }} # Pass ROS_REPO explicitly
