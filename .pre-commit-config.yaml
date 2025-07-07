@@ -29,7 +29,7 @@ repos:
       - id: fix-byte-order-marker
   # Format YAML files
   - repo: https://github.com/google/yamlfmt
-    rev: v0.16.0
+    rev: v0.17.2
     hooks:
       - id: yamlfmt
         exclude: "^(.github/workflows/archive/.*|scripts/.*)"
