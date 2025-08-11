@@ -49,7 +49,7 @@ jobs:
           source ~/.venv/bin/activate
           python3 -m pip install coverage --upgrade
           echo PATH=$PATH >> $GITHUB_ENV
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Execute script if provided
         if: inputs.before_install_target_dependencies != ''
         run: |

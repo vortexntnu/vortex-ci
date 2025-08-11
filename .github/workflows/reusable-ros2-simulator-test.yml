@@ -35,7 +35,7 @@ jobs:
       WORKSPACE: ~/ros2_ws
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Setup ROS 2
         uses: ros-tooling/setup-ros@0.7.14
         with:
