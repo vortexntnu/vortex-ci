@@ -1,5 +1,4 @@
 name: ROS Build and Clang Tidy Analysis
-
 on:
   workflow_call:
     inputs:
@@ -38,14 +37,12 @@ on:
         required: false
         default: "18"
         type: string
-
 jobs:
   build_and_clang_tidy:
     runs-on: ${{ inputs.os_name }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
       - name: Set GCC and G++ version
         if: inputs.gcc_version != '11'
         run: |
@@ -54,12 +51,10 @@ jobs:
           sudo apt-get install gcc-${{ inputs.gcc_version }} g++-${{ inputs.gcc_version }} -y
           sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-${{ inputs.gcc_version }} 60
           sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-${{ inputs.gcc_version }} 60
-
       - name: Setup ROS 2 environment
         uses: ros-tooling/setup-ros@v0.7
         with:
           required-ros-distributions: ${{ inputs.ros_distro }}
-
       - name: Build and generate compile_commands.json
         id: ros_ci
         uses: ros-tooling/action-ros-ci@v0.3
@@ -75,13 +70,11 @@ jobs:
                 ]
               }
             }
-
       - name: Verify compile_commands.json generation
         run: |
           if [ ! -f ${{ steps.ros_ci.outputs.ros-workspace-directory-name }}/build/compile_commands.json ]; then
             echo "compile_commands.json not found!" && exit 1
           fi
-
       - name: Run Clang Tidy Review
         uses: ZedThree/clang-tidy-review@v0.20.0
         with:
@@ -91,7 +84,6 @@ jobs:
           clang_tidy_checks: '-*,performance-*,readability-*,bugprone-*,clang-analyzer-*,cppcoreguidelines-*,mpi-*,misc-*'
           include: "*.[ch],*.[ch]xx,*.[ch]pp,*.[ch]++,*.cc,*.hh"
           max_comments: 25
-
       # Optional: Fail if clang-tidy comments were generated
       - if: steps.review.outputs.total_comments > 0
         run: exit 1
