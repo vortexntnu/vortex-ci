@@ -1,0 +1,108 @@
+name: Reusable Industrial CI
+on:
+  workflow_call:
+    inputs:
+      os:
+        description: "Operating System to run the workflow on"
+        required: false
+        default: "ubuntu-22.04"
+        type: string
+      ros_distro:
+        description: "List of ROS distributions to test (JSON array)"
+        required: false
+        default: '["humble"]'
+        type: string
+      ros_repo:
+        description: "List of ROS repositories to test (JSON array)"
+        required: false
+        default: '["main"]'
+        type: string
+      upstream_workspace:
+        description: "URL or path to the upstream workspace file"
+        required: false
+        default: "*.repos"
+        type: string
+      skip_tests:
+        description: "Skip running tests"
+        required: false
+        default: false
+        type: boolean
+      before_install_target_dependencies:
+        description: "Command to run before installing target dependencies"
+        required: false
+        default: ""
+        type: string
+      before_install_upstream_dependencies:
+        description: "Command to run before installing upstream dependencies"
+        required: false
+        default: ""
+        type: string
+      additional_debs:
+        description: "Additional Debian packages to install"
+        required: false
+        default: ""
+        type: string
+      cmake_args:
+        description: "Additional CMake arguments"
+        required: false
+        default: '-DCMAKE_CXX_FLAGS="-Wall -Wextra -Werror" -DCMAKE_C_FLAGS="-Wall -Wextra -Werror"'
+        type: string
+jobs:
+  industrial_ci:
+    name: ROS ${{ matrix.ROS_DISTRO }} (${{ matrix.ROS_REPO }})
+    runs-on: ${{ inputs.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        ROS_DISTRO: ${{ fromJson(inputs.ros_distro) }}
+        ROS_REPO: ${{ fromJson(inputs.ros_repo) }}
+    env:
+      CCACHE_DIR: "${{ github.workspace }}/.ccache" # Directory for ccache (and how we enable ccache in industrial_ci)
+    steps:
+      - uses: actions/checkout@v4 # Clone the target repository
+      - uses: actions/cache@v4 # Fetch/store the directory used by ccache before/after the CI run
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          key: ccache-${{ matrix.ROS_DISTRO }}-${{ matrix.ROS_REPO }}-${{ github.run_id }}
+          restore-keys: |
+            ccache-${{ matrix.ROS_DISTRO }}-${{ matrix.ROS_REPO }}-
+      - name: Detect .repos file
+        run: |
+          REPOS_FILE=$(ls *.repos 2>/dev/null | head -n 1 || echo "")
+          if [ -n "$REPOS_FILE" ]; then
+            echo "Using .repos file: $REPOS_FILE"
+            echo "UPSTREAM_WORKSPACE=$REPOS_FILE" >> $GITHUB_ENV
+          else
+            echo "No .repos file found, skipping workspace setup."
+            echo "UPSTREAM_WORKSPACE=" >> $GITHUB_ENV
+          fi
+      # Make the before_install_target_dependencies script executable
+      - name: Make script executable if provided
+        if: inputs.before_install_target_dependencies != ''
+        run: |
+          if [ -f "${{ inputs.before_install_target_dependencies }}" ]; then
+            echo "Making script executable: ${{ inputs.before_install_target_dependencies }}"
+            chmod +x "${{ inputs.before_install_target_dependencies }}"
+          else
+            echo "Provided path is not a file: ${{ inputs.before_install_target_dependencies }}"
+          fi
+      # Make the before_install_upstream_dependencies script executable
+      - name: Make script executable if provided
+        if: inputs.before_install_upstream_dependencies != ''
+        run: |
+          if [ -f "${{ inputs.before_install_upstream_dependencies }}" ]; then
+            echo "Making script executable: ${{ inputs.before_install_upstream_dependencies }}"
+            chmod +x "${{ inputs.before_install_upstream_dependencies }}"
+          else
+            echo "Provided path is not a file: ${{ inputs.before_install_upstream_dependencies }}"
+          fi
+      - uses: 'ros-industrial/industrial_ci@master' # Run industrial_ci
+        env:
+          ROS_DISTRO: ${{ matrix.ROS_DISTRO }} # Pass ROS_DISTRO explicitly
+          ROS_REPO: ${{ matrix.ROS_REPO }} # Pass ROS_REPO explicitly
+          UPSTREAM_WORKSPACE: ${{ env.UPSTREAM_WORKSPACE }} # Pass upstream workspace URL
+          NOT_TEST_BUILD: ${{ inputs.skip_tests }} # Skip tests if specified
+          BEFORE_INSTALL_TARGET_DEPENDENCIES: ${{ inputs.before_install_target_dependencies }} # Extra dependencies step
+          BEFORE_INSTALL_UPSTREAM_DEPENDENCIES: ${{ inputs.before_install_upstream_dependencies }} # Extra dependencies step
+          ADDITIONAL_DEBS: ${{ inputs.additional_debs }} # Pass additional Debian packages as input
+          CMAKE_ARGS: ${{ inputs.cmake_args }} # Pass additional CMake arguments (e.g. warnings as errors)

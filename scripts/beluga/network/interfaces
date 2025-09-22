@@ -1,0 +1,17 @@
+# Add this file to /etc/network on the xavier
+
+#interfaces(5) file used by ifup(8) and ifdown(8)
+# Include files from /etc/network/interfaces.d:
+source-directory /etc/network/interfaces.d
+
+# Static IP address w/ internet setup
+allow-hotplug eth0
+iface eth0 inet static
+      address 10.0.0.100
+      netmask 255.255.0.0
+      gateway 10.0.0.1
+      nameserver 8.8.8.8
+
+# DHCP setup
+#allow-hotplug eth0
+#iface eth0 inet dhcp
