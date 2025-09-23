@@ -13,17 +13,17 @@ on:
         default: "humble"
         type: string
       vcs_repos_file:
-        description: "Path to the .repos file for dependencies"
+        description: "Path to the .repos file for dependencies (relative to caller repo)"
         required: false
         default: "*.repos"
         type: string
       setup_script:
-        description: "Path to the setup script to execute"
+        description: "Path to the setup script to execute (relative to caller repo)"
         required: false
         default: ""
         type: string
       test_script:
-        description: "Path to the test script to execute"
+        description: "Path to the test script to execute (relative to caller repo)"
         required: true
         type: string
 jobs:
@@ -32,10 +32,13 @@ jobs:
     container:
       image: ros:${{ inputs.ros_distro }}-ros-base
     env:
-      WORKSPACE: ~/ros2_ws
+      WORKSPACE: ${{ github.workspace }}/ros2_ws
+      CALLER_REPO: ${{ github.workspace }}/ros2_ws/src/${{ github.event.repository.name }}
     steps:
-      - name: Checkout repository
+      - name: Checkout caller repository (PR code)
         uses: actions/checkout@v4
+        with:
+          path: ros2_ws/src/${{ github.event.repository.name }}
       - name: Setup ROS 2
         uses: ros-tooling/setup-ros@0.7.14
         with:
@@ -43,30 +46,34 @@ jobs:
       - name: Import dependencies from .repos file
         if: inputs.vcs_repos_file != ''
         run: |
-          mkdir -p ~/ros2_ws/src
-          vcs import ~/ros2_ws/src < ${{ inputs.vcs_repos_file }}
-          rosdep update
-          rosdep install --from-paths ~/ros2_ws/src --ignore-src -r -y
+          mkdir -p $WORKSPACE/src
+          if [ -f "$CALLER_REPO/${{ inputs.vcs_repos_file }}" ]; then
+            vcs import $WORKSPACE/src < "$CALLER_REPO/${{ inputs.vcs_repos_file }}"
+            rosdep update
+            rosdep install --from-paths $WORKSPACE/src --ignore-src -r -y
+          else
+            echo "Provided .repos file does not exist: $CALLER_REPO/${{ inputs.vcs_repos_file }}"
+          fi
       - name: Run setup script
         if: inputs.setup_script != ''
         run: |
-          if [ -f "${{ inputs.setup_script }}" ]; then
-            chmod +x "${{ inputs.setup_script }}"
-            "${{ inputs.setup_script }}"
+          if [ -f "$CALLER_REPO/${{ inputs.setup_script }}" ]; then
+            chmod +x "$CALLER_REPO/${{ inputs.setup_script }}"
+            "$CALLER_REPO/${{ inputs.setup_script }}"
           else
-            echo "Provided script does not exist: ${{ inputs.setup_script }}"
+            echo "Provided script does not exist: $CALLER_REPO/${{ inputs.setup_script }}"
           fi
       - name: Run test script
         if: inputs.test_script != ''
         run: |
-          if [ -f "${{ inputs.test_script }}" ]; then
-            chmod +x "${{ inputs.test_script }}"
-            "${{ inputs.test_script }}"
+          if [ -f "$CALLER_REPO/${{ inputs.test_script }}" ]; then
+            chmod +x "$CALLER_REPO/${{ inputs.test_script }}"
+            "$CALLER_REPO/${{ inputs.test_script }}"
           else
-            echo "Provided script does not exist: ${{ inputs.test_script }}"
+            echo "Provided script does not exist: $CALLER_REPO/${{ inputs.test_script }}"
           fi
       - uses: actions/upload-artifact@v4
+        if: failure()
         with:
           name: colcon-logs
-          path: ~/ros2_ws/log
-        if: failure()
+          path: ${{ github.workspace }}/ros2_ws/log
