@@ -26,7 +26,6 @@ on:
         description: "Path to the test script to execute (relative to caller repo)"
         required: true
         type: string
-
 jobs:
   build-and-test:
     runs-on: ${{ inputs.os }}
@@ -35,18 +34,15 @@ jobs:
     env:
       WORKSPACE: ${{ github.workspace }}/ros2_ws
       CALLER_REPO: ${{ github.workspace }}/ros2_ws/src/${{ github.event.repository.name }}
-
     steps:
       - name: Checkout caller repository (PR code)
         uses: actions/checkout@v4
         with:
           path: ros2_ws/src/${{ github.event.repository.name }}
-
       - name: Setup ROS 2
         uses: ros-tooling/setup-ros@0.7.14
         with:
           required-ros-distributions: ${{ inputs.ros_distro }}
-
       - name: Import dependencies from .repos file
         if: inputs.vcs_repos_file != ''
         run: |
@@ -58,7 +54,6 @@ jobs:
           else
             echo "Provided .repos file does not exist: $CALLER_REPO/${{ inputs.vcs_repos_file }}"
           fi
-
       - name: Run setup script
         if: inputs.setup_script != ''
         run: |
@@ -68,7 +63,6 @@ jobs:
           else
             echo "Provided script does not exist: $CALLER_REPO/${{ inputs.setup_script }}"
           fi
-
       - name: Run test script
         if: inputs.test_script != ''
         run: |
@@ -78,7 +72,6 @@ jobs:
           else
             echo "Provided script does not exist: $CALLER_REPO/${{ inputs.test_script }}"
           fi
-
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
