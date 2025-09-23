@@ -33,8 +33,8 @@ jobs:
     container:
       image: ros:${{ inputs.ros_distro }}-ros-base
     env:
-      WORKSPACE: ~/ros2_ws
-      CALLER_REPO: ~/ros2_ws/src/${{ github.event.repository.name }}
+      WORKSPACE: ${{ github.workspace }}/ros2_ws
+      CALLER_REPO: ${{ github.workspace }}/ros2_ws/src/${{ github.event.repository.name }}
 
     steps:
       - name: Checkout caller repository (PR code)
@@ -50,11 +50,11 @@ jobs:
       - name: Import dependencies from .repos file
         if: inputs.vcs_repos_file != ''
         run: |
-          mkdir -p ~/ros2_ws/src
+          mkdir -p $WORKSPACE/src
           if [ -f "$CALLER_REPO/${{ inputs.vcs_repos_file }}" ]; then
-            vcs import ~/ros2_ws/src < "$CALLER_REPO/${{ inputs.vcs_repos_file }}"
+            vcs import $WORKSPACE/src < "$CALLER_REPO/${{ inputs.vcs_repos_file }}"
             rosdep update
-            rosdep install --from-paths ~/ros2_ws/src --ignore-src -r -y
+            rosdep install --from-paths $WORKSPACE/src --ignore-src -r -y
           else
             echo "Provided .repos file does not exist: $CALLER_REPO/${{ inputs.vcs_repos_file }}"
           fi
@@ -83,4 +83,4 @@ jobs:
         if: failure()
         with:
           name: colcon-logs
-          path: ~/ros2_ws/log
+          path: ${{ github.workspace }}/ros2_ws/log
