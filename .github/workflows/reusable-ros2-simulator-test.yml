@@ -47,6 +47,7 @@ jobs:
         if: inputs.vcs_repos_file != ''
         run: |
           mkdir -p $WORKSPACE/src
+          mkdir -p $WORKSPACE/bags
           if [ -f "$CALLER_REPO/${{ inputs.vcs_repos_file }}" ]; then
             vcs import $WORKSPACE/src < "$CALLER_REPO/${{ inputs.vcs_repos_file }}"
             rosdep update
@@ -75,5 +76,6 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: colcon-logs
-          path: ${{ github.workspace }}/ros2_ws/log
+          name: rosbags
+          path: ${{ github.workspace }}/ros2_ws/bags
+          if-no-files-found: warn
