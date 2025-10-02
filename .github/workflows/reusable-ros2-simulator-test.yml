@@ -5,7 +5,7 @@ on:
       os:
         description: "Operating System to run the workflow on"
         required: false
-        default: "ubuntu-22.04-arm"
+        default: "ubuntu-22.04"
         type: string
       ros_distro:
         description: "ROS 2 distribution to use"
