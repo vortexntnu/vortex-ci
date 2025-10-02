@@ -30,7 +30,10 @@ jobs:
   build-and-test:
     runs-on: ${{ inputs.os }}
     container:
-      image: ros:${{ inputs.ros_distro }}-ros-base
+      image: ghcr.io/vortexntnu/stonefish:latest
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
     env:
       WORKSPACE: ${{ github.workspace }}/ros2_ws
       CALLER_REPO: ${{ github.workspace }}/ros2_ws/src/${{ github.event.repository.name }}
