@@ -1,0 +1,13 @@
+pull_request_rules:
+  - name: Automatic merge pre-commit-ci PRs
+    description: Automatically approve and merge PRs created by pre-commit-ci when all checks pass
+    conditions:
+      - author=pre-commit-ci[bot]
+      - check-success=pre-commit.ci - pr
+    actions:
+      review:
+        type: APPROVE
+        message: "Automatically approved by Mergify (pre-commit-ci bot rule)."
+      merge:
+        method: squash
+        strict: smart+fasttrack
