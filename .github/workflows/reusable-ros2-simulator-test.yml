@@ -97,11 +97,27 @@ jobs:
         uses: actions/checkout@v4
         with:
           path: ros2_ws/src/${{ github.event.repository.name }}
+      - name: Debug paths before download
+        run: |
+          echo "GITHUB_WORKSPACE=${GITHUB_WORKSPACE}"
+          echo "WORKSPACE=${WORKSPACE}"
+          echo "CALLER_REPO=${CALLER_REPO}"
+          echo "Tree of $GITHUB_WORKSPACE:"
+          ls -la
+          mkdir -p "$WORKSPACE"
+          ls -la "$WORKSPACE" || true
       - name: Download built install/ artifact
         uses: actions/download-artifact@v4
         with:
           name: ${{ env.ARTIFACT_NAME }}
           path: ${{ env.WORKSPACE }}
+      - name: Verify artifact contents
+        run: |
+          echo "After download, list $WORKSPACE:"
+          ls -la "$WORKSPACE"
+          echo "List install/:"
+          ls -la "$WORKSPACE/install" || { echo "install/ missing"; exit 1; }
+          test -f "$WORKSPACE/install/setup.bash" || { echo "setup.bash missing"; exit 1; }
       - name: Run test scripts
         run: |
           if [ -f "$CALLER_REPO/${{ matrix.test_scripts }}" ]; then
