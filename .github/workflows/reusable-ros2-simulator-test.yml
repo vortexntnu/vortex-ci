@@ -82,7 +82,7 @@ jobs:
     runs-on: ${{ inputs.os }}
     strategy:
       matrix:
-        test_scripts: ${{ inputs.test_scripts }}
+        test_scrips: ${{ fromJSON( inputs.test_scripts != '[]' && inputs.test_scripts || format('["{0}"]', inputs.test_scripts) ) }}
     container:
       image: ghcr.io/vortexntnu/stonefish:latest
       credentials:
