@@ -103,7 +103,6 @@ jobs:
           name: ${{ env.ARTIFACT_NAME }}
           path: ${{ env.WORKSPACE }}
       - name: Run test script
-        if: matrix.test_scripts != ''
         run: |
           if [ -f "$CALLER_REPO/${{ matrix.test_scripts }}" ]; then
             chmod +x "$CALLER_REPO/${{ matrix.test_scripts }}"
