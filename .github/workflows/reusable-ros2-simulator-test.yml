@@ -22,7 +22,7 @@ on:
         required: false
         default: ""
         type: string
-      test_script:
+      test_scripts:
         description: "Path to the test script to execute (relative to caller repo)"
         required: true
         type: string
@@ -80,6 +80,9 @@ jobs:
   test:
     needs: build
     runs-on: ${{ inputs.os }}
+    strategy:
+      matrix:
+        test_scripts: ${{ inputs.test_scripts }}
     container:
       image: ghcr.io/vortexntnu/stonefish:latest
       credentials:
@@ -100,13 +103,13 @@ jobs:
           name: ${{ env.ARTIFACT_NAME }}
           path: ${{ env.WORKSPACE }}
       - name: Run test script
-        if: inputs.test_script != ''
+        if: matrix.test_scripts != ''
         run: |
-          if [ -f "$CALLER_REPO/${{ inputs.test_script }}" ]; then
-            chmod +x "$CALLER_REPO/${{ inputs.test_script }}"
-            "$CALLER_REPO/${{ inputs.test_script }}"
+          if [ -f "$CALLER_REPO/${{ matrix.test_scripts }}" ]; then
+            chmod +x "$CALLER_REPO/${{ matrix.test_scripts }}"
+            "$CALLER_REPO/${{ matrix.test_scripts }}"
           else
-            echo "Provided script does not exist: $CALLER_REPO/${{ inputs.test_script }}"
+            echo "Provided script does not exist: $CALLER_REPO/${{ matrix.test_scripts }}"
           fi
       - uses: actions/upload-artifact@v4
         if: failure()
