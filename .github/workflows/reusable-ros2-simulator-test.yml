@@ -82,7 +82,7 @@ jobs:
     runs-on: ${{ inputs.os }}
     strategy:
       matrix:
-        test_script: ${{ fromJSON(inputs.test_scripts) }}
+        test_scripts: ${{ fromJSON(inputs.test_scripts) }}
     container:
       image: ghcr.io/vortexntnu/stonefish:latest
       credentials:
@@ -93,7 +93,7 @@ jobs:
       CALLER_REPO: ${{ github.workspace }}/ros2_ws/src/${{ github.event.repository.name }}
       ARTIFACT_NAME: ros2_ws_install-${{ inputs.ros_distro }}-${{ github.sha }}
     steps:
-      - name: Checkout caller repository (to get test script)
+      - name: Checkout caller repository (to get test scripts)
         uses: actions/checkout@v4
         with:
           path: ros2_ws/src/${{ github.event.repository.name }}
@@ -102,13 +102,13 @@ jobs:
         with:
           name: ${{ env.ARTIFACT_NAME }}
           path: ${{ env.WORKSPACE }}
-      - name: Run test script
+      - name: Run test scripts
         run: |
           if [ -f "$CALLER_REPO/${{ matrix.test_scripts }}" ]; then
             chmod +x "$CALLER_REPO/${{ matrix.test_scripts }}"
             "$CALLER_REPO/${{ matrix.test_scripts }}"
           else
-            echo "Provided script does not exist: $CALLER_REPO/${{ matrix.test_scripts }}"
+            echo "Provided scripts does not exist: $CALLER_REPO/${{ matrix.test_scripts }}"
           fi
       - uses: actions/upload-artifact@v4
         if: failure()
