@@ -27,7 +27,7 @@ on:
         required: true
         type: string
 jobs:
-  build-and-test:
+  build:
     runs-on: ${{ inputs.os }}
     container:
       image: ghcr.io/vortexntnu/stonefish:latest
@@ -37,6 +37,7 @@ jobs:
     env:
       WORKSPACE: ${{ github.workspace }}/ros2_ws
       CALLER_REPO: ${{ github.workspace }}/ros2_ws/src/${{ github.event.repository.name }}
+      ARTIFACT_NAME: ros2_ws_install-${{ inputs.ros_distro }}-${{ github.sha }}
     steps:
       - name: Checkout caller repository (PR code)
         uses: actions/checkout@v4
@@ -67,6 +68,37 @@ jobs:
           else
             echo "Provided script does not exist: $CALLER_REPO/${{ inputs.setup_script }}"
           fi
+      - name: Archive artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.ARTIFACT_NAME }}
+          path: |
+            ${{ env.WORKSPACE }}/install
+            ${{ env.WORKSPACE }}/bags
+          retention-days: 1
+          if-no-files-found: error
+  test:
+    needs: build
+    runs-on: ${{ inputs.os }}
+    container:
+      image: ghcr.io/vortexntnu/stonefish:latest
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    env:
+      WORKSPACE: ${{ github.workspace }}/ros2_ws
+      CALLER_REPO: ${{ github.workspace }}/ros2_ws/src/${{ github.event.repository.name }}
+      ARTIFACT_NAME: ros2_ws_install-${{ inputs.ros_distro }}-${{ github.sha }}
+    steps:
+      - name: Checkout caller repository (to get test script)
+        uses: actions/checkout@v4
+        with:
+          path: ros2_ws/src/${{ github.event.repository.name }}
+      - name: Download built install/ artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.ARTIFACT_NAME }}
+          path: ${{ env.WORKSPACE }}
       - name: Run test script
         if: inputs.test_script != ''
         run: |
