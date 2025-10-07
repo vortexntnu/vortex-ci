@@ -73,8 +73,8 @@ jobs:
         with:
           name: ${{ env.ARTIFACT_NAME }}
           path: |
-            ${{ env.WORKSPACE }}/install
-            ${{ env.WORKSPACE }}/bags
+            ros2_ws/install
+            ros2_ws/bags
           retention-days: 1
           if-no-files-found: error
   test:
