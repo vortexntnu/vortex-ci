@@ -122,6 +122,7 @@ jobs:
       - name: Run test scripts
         shell: bash
         run: |
+          find "$WORKSPACE/install" -type f -path '*/lib/*/*' -exec chmod +x {} +
           if [ -f "$CALLER_REPO/${{ matrix.test_scripts }}" ]; then
             chmod +x "$CALLER_REPO/${{ matrix.test_scripts }}"
             "$CALLER_REPO/${{ matrix.test_scripts }}"
