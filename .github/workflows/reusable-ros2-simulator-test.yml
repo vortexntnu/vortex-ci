@@ -51,8 +51,6 @@ jobs:
         if: inputs.vcs_repos_file != ''
         run: |
           mkdir -p $WORKSPACE/src
-          mkdir -p $WORKSPACE/bags
-          touch $WORKSPACE/bags/.keep
           if [ -f "$CALLER_REPO/${{ inputs.vcs_repos_file }}" ]; then
             vcs import $WORKSPACE/src < "$CALLER_REPO/${{ inputs.vcs_repos_file }}"
             rosdep update
@@ -98,30 +96,15 @@ jobs:
         uses: actions/checkout@v4
         with:
           path: ros2_ws/src/${{ github.event.repository.name }}
-      - name: Debug paths before download
-        run: |
-          echo "GITHUB_WORKSPACE=${GITHUB_WORKSPACE}"
-          echo "WORKSPACE=${WORKSPACE}"
-          echo "CALLER_REPO=${CALLER_REPO}"
-          echo "Tree of $GITHUB_WORKSPACE:"
-          ls -la
-          mkdir -p "$WORKSPACE"
-          ls -la "$WORKSPACE" || true
       - name: Download built install/ artifact
         uses: actions/download-artifact@v4
         with:
           name: ${{ env.ARTIFACT_NAME }}
           path: ${{ env.WORKSPACE }}
-      - name: Verify artifact contents
-        run: |
-          echo "After download, list $WORKSPACE:"
-          ls -la "$WORKSPACE"
-          echo "List install/:"
-          ls -la "$WORKSPACE/install" || { echo "install/ missing"; exit 1; }
-          test -f "$WORKSPACE/install/setup.bash" || { echo "setup.bash missing"; exit 1; }
       - name: Run test scripts
         shell: bash
         run: |
+          mkdir -p $WORKSPACE/bags
           find "$WORKSPACE/install" -type f -path '*/lib/*/*' -exec chmod +x {} +
           if [ -f "$CALLER_REPO/${{ matrix.test_scripts }}" ]; then
             chmod +x "$CALLER_REPO/${{ matrix.test_scripts }}"
@@ -133,5 +116,5 @@ jobs:
         if: failure()
         with:
           name: rosbags
-          path: ${{ github.workspace }}/ros2_ws/bags
+          path: $WORKSPACE/bags
           if-no-files-found: warn
