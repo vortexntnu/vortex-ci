@@ -120,6 +120,7 @@ jobs:
           test -f "$WORKSPACE/install/setup.bash" || { echo "setup.bash missing"; exit 1; }
       - name: Run test scripts
         run: |
+          source $WORKSPACE/install/setup.bash
           if [ -f "$CALLER_REPO/${{ matrix.test_scripts }}" ]; then
             chmod +x "$CALLER_REPO/${{ matrix.test_scripts }}"
             "$CALLER_REPO/${{ matrix.test_scripts }}"
