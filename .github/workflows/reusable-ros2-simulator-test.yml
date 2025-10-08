@@ -52,6 +52,7 @@ jobs:
         run: |
           mkdir -p $WORKSPACE/src
           mkdir -p $WORKSPACE/bags
+          touch $WORKSPACE/bags/.keep
           if [ -f "$CALLER_REPO/${{ inputs.vcs_repos_file }}" ]; then
             vcs import $WORKSPACE/src < "$CALLER_REPO/${{ inputs.vcs_repos_file }}"
             rosdep update
