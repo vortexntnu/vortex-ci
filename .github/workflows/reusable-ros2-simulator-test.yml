@@ -110,7 +110,7 @@ jobs:
             chmod +x "$CALLER_REPO/${{ matrix.test_scripts }}"
             "$CALLER_REPO/${{ matrix.test_scripts }}"
           else
-            echo "Provided scripts does not exist: $CALLER_REPO/${{ matrix.test_scripts }}"
+            echo "Provided script does not exist: $CALLER_REPO/${{ matrix.test_scripts }}"
           fi
       - uses: actions/upload-artifact@v4
         if: failure()
