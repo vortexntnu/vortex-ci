@@ -101,6 +101,10 @@ jobs:
         with:
           name: ${{ env.ARTIFACT_NAME }}
           path: ${{ env.WORKSPACE }}
+      - name: Install dependencies
+        run: |
+          rosdep update
+          rosdep install --from-paths $WORKSPACE/src --ignore-src -r -y
       - name: Run test scripts
         shell: bash
         run: |
