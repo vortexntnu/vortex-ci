@@ -23,7 +23,7 @@ on:
         default: ""
         type: string
       test_scripts:
-        description: "Path to the test script to execute (relative to caller repo)"
+        description: "Paths to the test scripts to execute (relative to caller repo). Accepts an array of paths."
         required: true
         type: string
 jobs:
