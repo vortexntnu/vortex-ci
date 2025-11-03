@@ -44,7 +44,7 @@ jobs:
         with:
           path: ros2_ws/src/${{ github.event.repository.name }}
       - name: Setup ROS 2
-        uses: ros-tooling/setup-ros@0.7.14
+        uses: ros-tooling/setup-ros@0.7.15
         with:
           required-ros-distributions: ${{ inputs.ros_distro }}
       - name: Import dependencies from .repos file
