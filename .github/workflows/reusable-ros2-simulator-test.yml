@@ -103,6 +103,7 @@ jobs:
           path: ${{ env.WORKSPACE }}
       - name: Install dependencies
         run: |
+          sudo apt update
           rosdep update
           rosdep install --from-paths $WORKSPACE/src --ignore-src -r -y
       - name: Run test scripts
