@@ -20,7 +20,7 @@ on:
       upstream_workspace:
         description: "URL or path to the upstream workspace file"
         required: false
-        default: "*.repos"
+        default: ""
         type: string
       skip_tests:
         description: "Skip running tests"
@@ -66,16 +66,10 @@ jobs:
           key: ccache-${{ matrix.ROS_DISTRO }}-${{ matrix.ROS_REPO }}-${{ github.run_id }}
           restore-keys: |
             ccache-${{ matrix.ROS_DISTRO }}-${{ matrix.ROS_REPO }}-
-      - name: Detect .repos file
+      - name: Set upstream workspace
+        if: inputs.upstream_workspace != ''
         run: |
-          REPOS_FILE=$(ls *.repos 2>/dev/null | head -n 1 || echo "")
-          if [ -n "$REPOS_FILE" ]; then
-            echo "Using .repos file: $REPOS_FILE"
-            echo "UPSTREAM_WORKSPACE=$REPOS_FILE" >> $GITHUB_ENV
-          else
-            echo "No .repos file found, skipping workspace setup."
-            echo "UPSTREAM_WORKSPACE=" >> $GITHUB_ENV
-          fi
+          echo "UPSTREAM_WORKSPACE=${{ inputs.upstream_workspace }}" >> $GITHUB_ENV
       # Make the before_install_target_dependencies script executable
       - name: Make script executable if provided
         if: inputs.before_install_target_dependencies != ''
