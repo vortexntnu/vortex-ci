@@ -67,7 +67,6 @@ jobs:
           restore-keys: |
             ccache-${{ matrix.ROS_DISTRO }}-${{ matrix.ROS_REPO }}-
       - name: Set upstream workspace
-        if: inputs.upstream_workspace != ''
         run: |
           echo "UPSTREAM_WORKSPACE=${{ inputs.upstream_workspace }}" >> $GITHUB_ENV
       # Make the before_install_target_dependencies script executable
