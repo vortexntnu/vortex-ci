@@ -47,10 +47,10 @@ on:
         required: false
         default: '-DCMAKE_CXX_FLAGS="-Wall -Wextra -Werror" -DCMAKE_C_FLAGS="-Wall -Wextra -Werror"'
         type: string
-      rosdep_args:
-        description: "Extra args passed to rosdep install (e.g. to ignore test deps)"
+      rosdep_skip_keys:
+        description: "Rosdep keys to ignore"
         required: false
-        default: "--dependency-types build,buildtool,exec"
+        default: "ament_pytest"
         type: string
 jobs:
   industrial_ci:
@@ -104,4 +104,4 @@ jobs:
           BEFORE_INSTALL_UPSTREAM_DEPENDENCIES: ${{ inputs.before_install_upstream_dependencies }} # Extra dependencies step
           ADDITIONAL_DEBS: ${{ inputs.additional_debs }} # Pass additional Debian packages as input
           CMAKE_ARGS: ${{ inputs.cmake_args }} # Pass additional CMake arguments (e.g. warnings as errors)
-          ROSDEP_ARGS: ${{ inputs.rosdep_args }} # Pass extra args to rosdep install
+          ROSDEP_SKIP_KEYS: ${{ inputs.rosdep_skip_keys }} # Skip selected rosdep keys
