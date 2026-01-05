@@ -14,7 +14,7 @@
 repos:
   # Standard hooks
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       - id: check-added-large-files
       - id: check-case-conflict
@@ -29,13 +29,13 @@ repos:
       - id: fix-byte-order-marker
   # Format YAML files
   - repo: https://github.com/google/yamlfmt
-    rev: v0.16.0
+    rev: v0.21.0
     hooks:
       - id: yamlfmt
         exclude: "^(.github/workflows/archive/.*|scripts/.*)"
   # Linting for GitHub Actions workflows
   - repo: https://github.com/rhysd/actionlint
-    rev: v1.7.7
+    rev: v1.7.10
     hooks:
       - id: actionlint
         exclude: "^.github/workflows/archive/.*"
