@@ -22,6 +22,11 @@ on:
         required: false
         default: ""
         type: string
+      pre_test_script:
+        description: "Path to a script to run before test execution in the test job (e.g., install runtime dependencies not captured in the build artifact)"
+        required: false
+        default: ""
+        type: string
       test_scripts:
         description: "Paths to the test scripts to execute (relative to caller repo). Accepts an array of paths."
         required: true
@@ -109,10 +114,13 @@ jobs:
           rosdep update
           rosdep install --from-paths $WORKSPACE/src --ignore-src -r -y
       - name: Install additional caller dependencies
+        if: inputs.pre_test_script != ''
         run: |
-          if [ -f "$CALLER_REPO/scripts/ci_install_dependencies.sh" ]; then
-            chmod +x "$CALLER_REPO/scripts/ci_install_dependencies.sh"
-            "$CALLER_REPO/scripts/ci_install_dependencies.sh"
+          if [ -f "$CALLER_REPO/${{ inputs.pre_test_script }}" ]; then
+            chmod +x "$CALLER_REPO/${{ inputs.pre_test_script }}"
+            "$CALLER_REPO/${{ inputs.pre_test_script }}"
+          else
+            echo "Provided script does not exist: $CALLER_REPO/${{ inputs.pre_test_script }}"
           fi
       - name: Run test scripts
         shell: bash
