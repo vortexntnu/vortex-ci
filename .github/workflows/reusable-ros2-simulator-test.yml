@@ -108,6 +108,12 @@ jobs:
           sudo apt update
           rosdep update
           rosdep install --from-paths $WORKSPACE/src --ignore-src -r -y
+      - name: Install additional caller dependencies
+        run: |
+          if [ -f "$CALLER_REPO/scripts/ci_install_dependencies.sh" ]; then
+            chmod +x "$CALLER_REPO/scripts/ci_install_dependencies.sh"
+            "$CALLER_REPO/scripts/ci_install_dependencies.sh"
+          fi
       - name: Run test scripts
         shell: bash
         run: |
