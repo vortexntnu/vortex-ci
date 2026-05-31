@@ -13,29 +13,42 @@ on:
         default: "humble"
         type: string
       vcs_repos_file:
-        description: "Path to the .repos file for dependencies"
+        description: "Path to the .repos file for dependencies (relative to caller repo)"
         required: false
         default: "*.repos"
         type: string
       setup_script:
-        description: "Path to the setup script to execute"
+        description: "Path to the setup script to execute (relative to caller repo)"
         required: false
         default: ""
         type: string
-      test_script:
-        description: "Path to the test script to execute"
+      pre_test_script:
+        description: "Path to a script to run before test execution in the test job (e.g., install runtime dependencies not captured in the build artifact)"
+        required: false
+        default: ""
+        type: string
+      test_scripts:
+        description: "Paths to the test scripts to execute (relative to caller repo). Accepts an array of paths."
         required: true
         type: string
 jobs:
-  build-and-test:
+  build:
     runs-on: ${{ inputs.os }}
+    timeout-minutes: 30
     container:
-      image: ros:${{ inputs.ros_distro }}-ros-base
+      image: ghcr.io/vortexntnu/stonefish:latest
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
     env:
-      WORKSPACE: ~/ros2_ws
+      WORKSPACE: ${{ github.workspace }}/ros2_ws
+      CALLER_REPO: ${{ github.workspace }}/ros2_ws/src/${{ github.event.repository.name }}
+      ARTIFACT_NAME: ros2_ws_install-${{ inputs.ros_distro }}-${{ github.sha }}
     steps:
-      - name: Checkout repository
+      - name: Checkout caller repository (PR code)
         uses: actions/checkout@v4
+        with:
+          path: ros2_ws/src/${{ github.event.repository.name }}
       - name: Setup ROS 2
         uses: ros-tooling/setup-ros@0.7.15
         with:
@@ -43,30 +56,86 @@ jobs:
       - name: Import dependencies from .repos file
         if: inputs.vcs_repos_file != ''
         run: |
-          mkdir -p ~/ros2_ws/src
-          vcs import ~/ros2_ws/src < ${{ inputs.vcs_repos_file }}
-          rosdep update
-          rosdep install --from-paths ~/ros2_ws/src --ignore-src -r -y
+          mkdir -p $WORKSPACE/src
+          if [ -f "$CALLER_REPO/${{ inputs.vcs_repos_file }}" ]; then
+            vcs import $WORKSPACE/src < "$CALLER_REPO/${{ inputs.vcs_repos_file }}"
+            rosdep update
+            rosdep install --from-paths $WORKSPACE/src --ignore-src -r -y
+          else
+            echo "Provided .repos file does not exist: $CALLER_REPO/${{ inputs.vcs_repos_file }}"
+          fi
       - name: Run setup script
         if: inputs.setup_script != ''
         run: |
-          if [ -f "${{ inputs.setup_script }}" ]; then
-            chmod +x "${{ inputs.setup_script }}"
-            "${{ inputs.setup_script }}"
+          if [ -f "$CALLER_REPO/${{ inputs.setup_script }}" ]; then
+            chmod +x "$CALLER_REPO/${{ inputs.setup_script }}"
+            "$CALLER_REPO/${{ inputs.setup_script }}"
           else
-            echo "Provided script does not exist: ${{ inputs.setup_script }}"
+            echo "Provided script does not exist: $CALLER_REPO/${{ inputs.setup_script }}"
           fi
-      - name: Run test script
-        if: inputs.test_script != ''
+      - name: Archive artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.ARTIFACT_NAME }}
+          path: |
+            ros2_ws/install
+            ros2_ws/bags
+          retention-days: 1
+          if-no-files-found: error
+  test:
+    needs: build
+    runs-on: ${{ inputs.os }}
+    timeout-minutes: 30
+    strategy:
+      matrix:
+        test_scripts: ${{ fromJSON(inputs.test_scripts) }}
+    container:
+      image: ghcr.io/vortexntnu/stonefish:latest
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    env:
+      WORKSPACE: ${{ github.workspace }}/ros2_ws
+      CALLER_REPO: ${{ github.workspace }}/ros2_ws/src/${{ github.event.repository.name }}
+      ARTIFACT_NAME: ros2_ws_install-${{ inputs.ros_distro }}-${{ github.sha }}
+    steps:
+      - name: Checkout caller repository (to get test scripts)
+        uses: actions/checkout@v4
+        with:
+          path: ros2_ws/src/${{ github.event.repository.name }}
+      - name: Download built install/ artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.ARTIFACT_NAME }}
+          path: ${{ env.WORKSPACE }}
+      - name: Install dependencies
         run: |
-          if [ -f "${{ inputs.test_script }}" ]; then
-            chmod +x "${{ inputs.test_script }}"
-            "${{ inputs.test_script }}"
+          sudo apt update
+          rosdep update
+          rosdep install --from-paths $WORKSPACE/src --ignore-src -r -y
+      - name: Install additional caller dependencies
+        if: inputs.pre_test_script != ''
+        run: |
+          if [ -f "$CALLER_REPO/${{ inputs.pre_test_script }}" ]; then
+            chmod +x "$CALLER_REPO/${{ inputs.pre_test_script }}"
+            "$CALLER_REPO/${{ inputs.pre_test_script }}"
           else
-            echo "Provided script does not exist: ${{ inputs.test_script }}"
+            echo "Provided script does not exist: $CALLER_REPO/${{ inputs.pre_test_script }}"
+          fi
+      - name: Run test scripts
+        shell: bash
+        run: |
+          mkdir -p $WORKSPACE/bags
+          find "$WORKSPACE/install" -type f -path '*/lib/*/*' -exec chmod +x {} +
+          if [ -f "$CALLER_REPO/${{ matrix.test_scripts }}" ]; then
+            chmod +x "$CALLER_REPO/${{ matrix.test_scripts }}"
+            "$CALLER_REPO/${{ matrix.test_scripts }}"
+          else
+            echo "Provided script does not exist: $CALLER_REPO/${{ matrix.test_scripts }}"
           fi
       - uses: actions/upload-artifact@v4
-        with:
-          name: colcon-logs
-          path: ~/ros2_ws/log
         if: failure()
+        with:
+          name: rosbags
+          path: $WORKSPACE/bags
+          if-no-files-found: warn
