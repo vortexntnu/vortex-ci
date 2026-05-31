@@ -22,6 +22,11 @@ on:
         required: false
         default: ""
         type: string
+      pre_test_script:
+        description: "Path to a script to run before test execution in the test job (e.g., install runtime dependencies not captured in the build artifact)"
+        required: false
+        default: ""
+        type: string
       test_scripts:
         description: "Paths to the test scripts to execute (relative to caller repo). Accepts an array of paths."
         required: true
@@ -29,6 +34,7 @@ on:
 jobs:
   build:
     runs-on: ${{ inputs.os }}
+    timeout-minutes: 30
     container:
       image: ghcr.io/vortexntnu/stonefish:latest
       credentials:
@@ -79,6 +85,7 @@ jobs:
   test:
     needs: build
     runs-on: ${{ inputs.os }}
+    timeout-minutes: 30
     strategy:
       matrix:
         test_scripts: ${{ fromJSON(inputs.test_scripts) }}
@@ -103,8 +110,18 @@ jobs:
           path: ${{ env.WORKSPACE }}
       - name: Install dependencies
         run: |
+          sudo apt update
           rosdep update
           rosdep install --from-paths $WORKSPACE/src --ignore-src -r -y
+      - name: Install additional caller dependencies
+        if: inputs.pre_test_script != ''
+        run: |
+          if [ -f "$CALLER_REPO/${{ inputs.pre_test_script }}" ]; then
+            chmod +x "$CALLER_REPO/${{ inputs.pre_test_script }}"
+            "$CALLER_REPO/${{ inputs.pre_test_script }}"
+          else
+            echo "Provided script does not exist: $CALLER_REPO/${{ inputs.pre_test_script }}"
+          fi
       - name: Run test scripts
         shell: bash
         run: |
