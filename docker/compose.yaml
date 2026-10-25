@@ -1,0 +1,37 @@
+services:
+  ros2:
+    image: test:latest
+    container_name: vortex_dev
+    stdin_open: true
+    tty: true
+
+    gpus: all
+
+    environment:
+      DISPLAY: ${DISPLAY:?Set DISPLAY from your desktop session}
+      XAUTHORITY: /tmp/host.xauth
+      NVIDIA_DRIVER_CAPABILITIES: graphics,display,utility,compute
+      __NV_PRIME_RENDER_OFFLOAD: "1"
+      __GLX_VENDOR_LIBRARY_NAME: nvidia
+
+    volumes:
+      - .:/ros2_ws/src
+      - /tmp/.X11-unix:/tmp/.X11-unix:ro
+      - type: bind
+        source: ${XAUTHORITY:?Set XAUTHORITY to your desktop Xauthority file}
+        target: /tmp/host.xauth
+        read_only: true
+        bind:
+          create_host_path: false
+
+    working_dir: /ros2_ws
+    command: bash
+
+# need nvidia container toolkit
+
+# source /opt/ros/humble/setup.bash
+# colcon build --symlink-install --packages-up-to stonefish_sim
+# source install/setup.bash
+
+# Graphical: ros2 launch stonefish_sim simulation.launch.py scenario:=tacc
+# Headless: ros2 launch stonefish_sim simulation.launch.py scenario:=orca_no_gpu rendering:=false
