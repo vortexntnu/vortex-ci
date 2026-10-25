@@ -9,9 +9,9 @@
 
 **Docker** : https://www.docker.com/ 
 
-****
+**Nvidia container toolkit (for gpu accelerated containers )** : https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html
 
-### How
+### Usage
 
 **Build the image**: `docker build -t vortex:latest . `
 
@@ -19,3 +19,13 @@
 
 > !Note
 > This wil sync the files with the container. So changes will be updated
+
+**source setup file** : `source /opt/ros/humble/setup.bash`
+
+#### Example for running the sim
+
+**Build** `colcon build --symlink-install --packages-up-to sstonefish_sim`
+
+**Source** `source install/setup.bash`
+
+**Graphical** `ros2 launch stonefish_sim simulation.launch.py scenario:=tacc`

@@ -26,12 +26,3 @@ services:
 
     working_dir: /ros2_ws
     command: bash
-
-# need nvidia container toolkit
-
-# source /opt/ros/humble/setup.bash
-# colcon build --symlink-install --packages-up-to stonefish_sim
-# source install/setup.bash
-
-# Graphical: ros2 launch stonefish_sim simulation.launch.py scenario:=tacc
-# Headless: ros2 launch stonefish_sim simulation.launch.py scenario:=orca_no_gpu rendering:=false
