@@ -7,7 +7,7 @@
 
 ### Dependencies
 
-**Docker** : https://www.docker.com/ 
+**Docker** : https://www.docker.com/
 
 **Nvidia container toolkit (for gpu accelerated containers )** : https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html
 
@@ -24,7 +24,7 @@
 
 #### Example for running the sim
 
-**Build** `colcon build --symlink-install --packages-up-to sstonefish_sim`
+**Build** `colcon build --symlink-install --packages-up-to stonefish_sim`
 
 **Source** `source install/setup.bash`
 

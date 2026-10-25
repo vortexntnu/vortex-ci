@@ -34,7 +34,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # deps for working with git
-RUN apt-get update && get-apt install -y \
+RUN apt-get update && apt-get install -y \
     git \
     clang-format \
     ros-humble-ament-cppcheck \
