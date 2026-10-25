@@ -1,0 +1,18 @@
+# Optional NVIDIA/X11 support. Merge with compose.yaml using both -f flags.
+services:
+  ros2:
+    gpus: all
+    environment:
+      DISPLAY: ${DISPLAY:?Set DISPLAY from your desktop session}
+      XAUTHORITY: /tmp/host.xauth
+      NVIDIA_DRIVER_CAPABILITIES: graphics,display,utility,compute
+      __NV_PRIME_RENDER_OFFLOAD: "1"
+      __GLX_VENDOR_LIBRARY_NAME: nvidia
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:ro
+      - type: bind
+        source: ${XAUTHORITY:?Set XAUTHORITY to your desktop Xauthority file}
+        target: /tmp/host.xauth
+        read_only: true
+        bind:
+          create_host_path: false

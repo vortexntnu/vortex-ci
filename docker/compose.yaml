@@ -1,0 +1,10 @@
+services:
+  ros2:
+    image: vortex:latest
+    container_name: vortex_dev
+    stdin_open: true
+    tty: true
+    volumes:
+      - ${HOME}/ros2_ws/src/:/ros2_ws/src/
+    working_dir: /ros2_ws
+    command: bash
